@@ -170,7 +170,7 @@ private void filterMembers(String category) {
                 {null, null, null, null}
             },
             new String [] {
-                "Membership ID", "Member Type", "Registration Date", "Note"
+                "Membership_ID", "Member Type", "Registration Date", "Note"
             }
         ));
         rSTableMetro1.setCellSelectionEnabled(true);
@@ -210,7 +210,6 @@ private void filterMembers(String category) {
         searchboxx.setBackground(new java.awt.Color(0, 0, 0));
         searchboxx.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         searchboxx.setForeground(new java.awt.Color(255, 153, 0));
-        searchboxx.setText("jTextField2");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);

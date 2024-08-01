@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 /**
@@ -30,7 +31,7 @@ public class fines_collecting extends javax.swing.JFrame {
         
     }
 
-    public void retrieveLateDays() {
+     public void retrieveLateDays() {
     String memberId = memberfinesbox.getText();
 
     try (Connection conn = new Helper.DatabaseConnection().connection()) {
@@ -65,8 +66,8 @@ public class fines_collecting extends javax.swing.JFrame {
 
 
 
-    private void calculateFine(String memberId, int lateDays, Connection conn) {
-    try {
+private void calculateFine(String memberId, int lateDays, Connection conn) {
+    try {System.out.println("ggggg");
         // Fetch member type
         String sql = "SELECT B_Type FROM borrower WHERE B_ID = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -88,10 +89,7 @@ public class fines_collecting extends javax.swing.JFrame {
         Logger.getLogger(Security_deposit.class.getName()).log(Level.SEVERE, null, ex);
     }
 }
-
-
-
-    private double getFineAmount(Connection conn, String memberType, int lateDays) throws SQLException {
+private double getFineAmount(Connection conn, String memberType, int lateDays) throws SQLException {
     String sql = "SELECT fine_type_amount_for_Childrens, fine_type_amount_for_Adults, fine_type_description " +
                  "FROM fines_type";
 
@@ -119,6 +117,14 @@ public class fines_collecting extends javax.swing.JFrame {
     return 0.0; // No fine amount found
 }
 
+/*private int[] parseRange(String description) {
+    String[] parts = description.split("-");
+    int start = Integer.parseInt(parts[0].trim());
+    int end = Integer.parseInt(parts[1].trim());
+    return new int[]{start, end};
+}
+
+*/
 
 private int[] parseRange(String description) {
     if (description.contains("onwards")) {
@@ -208,7 +214,7 @@ private void calculateFine(String accessionNo, Connection conn) {
             }
 
             double totalFine =bookPrice+ bookPrice * fineMultiplier;
-            jLabel10.setText("Total Fine: " + String.format("%.2f", totalFine));
+            jLabel10.setText(" " + String.format("%.2f", totalFine));
         } catch (SQLException ex) {
             Logger.getLogger(fines_collecting.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "An error occurred while calculating the fine.");
@@ -365,6 +371,52 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         }
         return 0; // Return a default value if not found
     }*/
+    public void showBookDetails(String accessionNo, Connection conn, JLabel nameLabel, JLabel priceLabel) {
+    if (accessionNo.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Please enter an accession number.");
+        return;
+    }
+
+    String isbn = null;
+    String bookName = null;
+    double bookPrice = 0.0;
+
+    try {
+        // Step 1: Retrieve the ISBN number from the book_copies table
+        String queryIsbn = "SELECT ISBN_No FROM bookcopies WHERE Accession_No = ?";
+        PreparedStatement pstmtIsbn = conn.prepareStatement(queryIsbn);
+        pstmtIsbn.setString(1, accessionNo);
+        ResultSet rsIsbn = pstmtIsbn.executeQuery();
+
+        if (rsIsbn.next()) {
+            isbn = rsIsbn.getString("ISBN_No");
+        } else {
+            JOptionPane.showMessageDialog(null, "Accession number not found.");
+            return;
+        }
+
+        // Step 2: Use the ISBN number to fetch the book name and price from the book table
+        String queryBookDetails = "SELECT Title, Price FROM book WHERE ISBN_No = ?";
+        PreparedStatement pstmtBookDetails = conn.prepareStatement(queryBookDetails);
+        pstmtBookDetails.setString(1, isbn);
+        ResultSet rsBookDetails = pstmtBookDetails.executeQuery();
+
+        if (rsBookDetails.next()) {
+            bookName = rsBookDetails.getString("Title");
+            bookPrice = rsBookDetails.getDouble("Price");
+        } else {
+            JOptionPane.showMessageDialog(null, "Book details not found for the given ISBN.");
+            return;
+        }
+
+        // Step 3: Display the book name and price in the labels
+        jLabel17.setText(" " + bookName);
+       jLabel5.setText("Rs. " + bookPrice);
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "An error occurred while retrieving book details: " + e.getMessage());
+    }
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -583,7 +635,6 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
 
         jLabel19.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(153, 255, 0));
-        jLabel19.setText("no of days");
         jLabel19.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
         jPanel2.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 280, 170, 50));
 
@@ -722,7 +773,10 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
                 if (accessionNo.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Please enter an accession number.");
                 } else {
+                    showBookDetails(accessionNo, conn, jLabel17, jLabel5);
+
                     calculateFine(accessionNo, conn);
+                    
                 }  
     }//GEN-LAST:event_rSButtonHover3ActionPerformed
 

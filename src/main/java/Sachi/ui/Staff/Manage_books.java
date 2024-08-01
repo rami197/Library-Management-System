@@ -3,6 +3,8 @@ package Sachi.ui.Staff;
 import Helper.DatabaseConnection;
 import Jframe.*;
 import static Sachi.staff.book.ui.Book_issue.getDate;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +20,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import static javax.swing.text.html.HTML.Tag.SELECT;
@@ -35,36 +40,53 @@ public class Manage_books extends javax.swing.JFrame {
         populateAuthorCombobox();
         populatePublisherCombobox();
         acquireddate.setText(getDate());
+        populateAuthorCombobox();
+        setupAutoComplete(authorCombobox);
     }
 
     public int getNextAccessionNo() {
-        int nextAccessionNo = 1;
+    int nextAccessionNo = 1;
 
-        try ( Connection conn = new Helper.DatabaseConnection().connection()) {
+    try (Connection conn = new Helper.DatabaseConnection().connection()) {
 
-            String countquery = "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'library_ms' AND TABLE_NAME = 'bookcopies'";
-            PreparedStatement countstmt = conn.prepareStatement(countquery);
-            ResultSet rs = countstmt.executeQuery();
+        // Modify the query to get the last added accession number in descending order
+        String query = "SELECT Accession_No FROM bookcopies ORDER BY Accession_No DESC LIMIT 1";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                nextAccessionNo = rs.getInt(1);
-            }
-            rs.close();
-            countstmt.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Failed to retrieve the next Supplier ID");
+        // Retrieve and increment the last accession number
+        if (rs.next()) {
+            nextAccessionNo = rs.getInt(1) + 1;
         }
+        rs.close();
+        stmt.close();
 
-        return nextAccessionNo;
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Failed to retrieve the next Accession No");
     }
+
+    return nextAccessionNo;
+}
+
 
     private void setNextAccessionNo() {
         int nextAccessionNo = getNextAccessionNo();
         AccessionNo1.setText(String.valueOf(nextAccessionNo));
 
     }
+    public String getCompleteISBN() {
+    String part1 = isbnbox1.getText().trim();
+    String part2 = isbnbox2.getText().trim();
+    String part3 = isbnbox3.getText().trim();
+    String part4 = isbnbox4.getText().trim();
+    String part5 = isbnbox.getText().trim();
+
+    // Concatenate all parts with hyphens
+    String isbn = part1 + "-" + part2 + "-" + part3 + "-" + part4 + "-" + part5;
+
+    return isbn;
+}
 
     public void insertBookDetails() {
         try ( Connection conn = new Helper.DatabaseConnection().connection()) {
@@ -73,7 +95,7 @@ public class Manage_books extends javax.swing.JFrame {
                 stmt.execute("SET FOREIGN_KEY_CHECKS=0");
             }
 
-            String isbn = isbnbox.getText();
+           String isbn = getCompleteISBN(); 
             String price = pricebox.getText();
             String publisher = publishercombobox.getSelectedItem().toString();
             String acquireddatee = acquireddate.getText();
@@ -223,7 +245,38 @@ System.out.println(lastBookId+donatorId);
             System.out.println("Error fetching Authors: " + e.getMessage());
         }
     }
+     private void setupAutoComplete(JComboBox<String> authorCombobox) {
+        List<String> items = new ArrayList<>();
+        for (int i = 0; i < authorCombobox.getItemCount(); i++) {
+            items.add((String) authorCombobox.getItemAt(i));
+        }
 
+        JTextField textField = (JTextField) authorCombobox.getEditor().getEditorComponent();
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    String text = textField.getText();
+                    if (text.isEmpty()) {
+                       authorCombobox.hidePopup();
+                        return;
+                    }
+
+                    authorCombobox.removeAllItems();
+                    for (String item : items) {
+                        if (item.toLowerCase().contains(text.toLowerCase())) {
+                            authorCombobox.addItem(item);
+                        }
+                    }
+
+                    textField.setText(text);
+                   authorCombobox.showPopup();
+                });
+            }
+        });
+
+        authorCombobox.setEditable(true);
+        }
     private void populateDonorComboBox() {
 
         try ( Connection conn = new Helper.DatabaseConnection().connection();) {
@@ -262,18 +315,16 @@ System.out.println(lastBookId+donatorId);
     }
 
     private void checkAvailability() {
-        String isbn = isbnbox.getText();
-        int availableCopies = getAvailableCopies(isbn);
-        copyamountbix.setText("Available " + availableCopies + " copies");
+    String isbn = getCompleteISBN(); // Use the method to get the full ISBN number
+    int availableCopies = getAvailableCopies(isbn);
+    copyamountbix.setText("Available " + availableCopies + " copies");
 
-        if (availableCopies > 0) {
-
-            retrieveAndDisplayBookDetails();
-        } else {
-
-           // clearBookDetails();
-        }
+    if (availableCopies > 0) {
+        retrieveAndDisplayBookDetails();
+    } else {
+        // clearBookDetails(); // Uncomment this line if you have a method to clear book details
     }
+}
 
     private int getAvailableCopies(String isbn) {
         int count = 0;
@@ -350,26 +401,39 @@ String isbn=isbnbox.getText();
     }
 
     private void addBookCopy() {
-        String isbn = isbnbox.getText();
+    String isbn = getCompleteISBN();
+    String acquiredDate = acquireddate.getText();
+    String copiesText = copiesAmountBox.getSelectedItem().toString().trim(); // Trim the string to remove extra spaces
+    int copies = 0;
+    
+    try {
+        copies = Integer.parseInt(copiesText); // Parse the trimmed string to an integer
+    } catch (NumberFormatException e) {
+        // Handle the case where the input is not a valid integer
+        JOptionPane.showMessageDialog(this, "Please enter a valid number of copies.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        return; // Exit the method if the input is invalid
+    }
 
-        String acquiredDate = acquireddate.getText();
+    String insertQuery = "INSERT INTO bookcopies (ISBN_No, AcquisitionDate) VALUES (?, ?)";
 
-        String insertQuery = "INSERT INTO bookcopies (ISBN_No, AcquisitionDate) VALUES (?, ?)";
+    try (Connection conn = new Helper.DatabaseConnection().connection();
+         PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
 
-        try ( Connection conn = new Helper.DatabaseConnection().connection();  PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-
+        for (int i = 0; i < copies; i++) {
             insertStmt.setString(1, isbn);
-
             insertStmt.setString(2, acquiredDate);
             insertStmt.executeUpdate();
-
-            JOptionPane.showMessageDialog(this, "Book copy added successfully.");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
         }
+
+        JOptionPane.showMessageDialog(this, copies + " book copies added successfully.");
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
     }
+}
+
+
 
     public static String getDate() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -437,6 +501,15 @@ String isbn=isbnbox.getText();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        copiesAmountBox = new javax.swing.JComboBox<>();
+        isbnbox1 = new javax.swing.JTextField();
+        isbnbox2 = new javax.swing.JTextField();
+        isbnbox3 = new javax.swing.JTextField();
+        isbnbox4 = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -549,7 +622,7 @@ String isbn=isbnbox.getText();
                 isbnboxActionPerformed(evt);
             }
         });
-        jPanel7.add(isbnbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 70, 230, 36));
+        jPanel7.add(isbnbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 70, 70, 36));
 
         jLabel31.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel31.setForeground(new java.awt.Color(255, 255, 255));
@@ -784,6 +857,7 @@ String isbn=isbnbox.getText();
     jLabel29.setText("Book Genre");
     jPanel7.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(718, 75, -1, -1));
 
+    authorCombobox.setEditable(true);
     authorCombobox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
     authorCombobox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -821,7 +895,7 @@ String isbn=isbnbox.getText();
             jLabel38MouseClicked(evt);
         }
     });
-    jPanel7.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 70, 150, -1));
+    jPanel7.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, 150, -1));
 
     jLabel39.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
     jLabel39.setForeground(new java.awt.Color(255, 255, 255));
@@ -887,7 +961,7 @@ String isbn=isbnbox.getText();
             jLabel6MouseClicked(evt);
         }
     });
-    jPanel7.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 120, 40, 40));
+    jPanel7.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 120, 40, 40));
 
     jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Add.png"))); // NOI18N
     jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -900,6 +974,59 @@ String isbn=isbnbox.getText();
     jLabel1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
     jLabel1.setText("Rs.");
     jPanel7.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 270, 30, 30));
+
+    copiesAmountBox.setEditable(true);
+    copiesAmountBox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    copiesAmountBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1  ", "2  ", "3  ", "4  ", "5  ", "6  ", "7  ", "8  ", "9  ", "10  ", "11  ", "12  ", "13  ", "14  ", "15  ", "16  ", "17  ", "18  ", "19  ", "20  ", "21  ", "22  ", "23  ", "24  ", "25  ", "26  ", "27  ", "28  ", "29  ", "30  ", "31  ", "32  ", "33  ", "34  ", "35  ", "36  ", "37  ", "38  ", "39  ", "40  ", "41  ", "42  ", "43  ", "44  ", "45  ", "46  ", "47  ", "48  ", "49  ", "50  ", "51  ", "52  ", "53  ", "54  ", "55  ", "56  ", "57  ", "58  ", "59  ", "60  ", "61  ", "62  ", "63  ", "64  ", "65  ", "66  ", "67  ", "68  ", "69  ", "70  ", "71  ", "72  ", "73  ", "74  ", "75  ", "76  ", "77  ", "78  ", "79  ", "80  ", "81  ", "82  ", "83  ", "84  ", "85  ", "86  ", "87  ", "88  ", "89  ", "90  ", "91  ", "92  ", "93  ", "94  ", "95  ", "96  ", "97  ", "98  ", "99  ", "100" }));
+    jPanel7.add(copiesAmountBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 130, 70, 30));
+
+    isbnbox1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    isbnbox1.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            isbnbox1ActionPerformed(evt);
+        }
+    });
+    jPanel7.add(isbnbox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 70, 50, 36));
+
+    isbnbox2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    isbnbox2.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            isbnbox2ActionPerformed(evt);
+        }
+    });
+    jPanel7.add(isbnbox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 70, 30, 36));
+
+    isbnbox3.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    isbnbox3.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            isbnbox3ActionPerformed(evt);
+        }
+    });
+    jPanel7.add(isbnbox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 70, 40, 36));
+
+    isbnbox4.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    isbnbox4.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            isbnbox4ActionPerformed(evt);
+        }
+    });
+    jPanel7.add(isbnbox4, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 70, 90, 36));
+
+    jLabel8.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    jLabel8.setText(" -");
+    jPanel7.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 70, 20, 30));
+
+    jLabel9.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    jLabel9.setText(" -");
+    jPanel7.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 80, 20, 10));
+
+    jLabel10.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    jLabel10.setText(" -");
+    jPanel7.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 80, 20, 10));
+
+    jLabel11.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+    jLabel11.setText(" -");
+    jPanel7.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 80, 20, 10));
 
     jLabel18.setFont(new java.awt.Font("Dialog", 0, 20)); // NOI18N
     jLabel18.setForeground(new java.awt.Color(255, 153, 0));
@@ -991,6 +1118,7 @@ String isbn=isbnbox.getText();
         insertBookDetails();
         
         setNextAccessionNo();
+        checkAvailability(); 
         
     }//GEN-LAST:event_rSButtonHover6ActionPerformed
 
@@ -1057,7 +1185,10 @@ checkAvailability();      // TODO add your handling code here:
     }//GEN-LAST:event_jLabel5MouseClicked
 
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
-addBookCopy();        // TODO add your handling code here:
+addBookCopy(); 
+ setNextAccessionNo();
+checkAvailability(); 
+        // TODO add your handling code here:
     }//GEN-LAST:event_jLabel6MouseClicked
 
     private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
@@ -1068,6 +1199,22 @@ Sachi.staff.Settings.Ui.Add_New_Publishers addpub = new Sachi.staff.Settings.Ui.
     private void jLabel38MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel38MouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel38MouseClicked
+
+    private void isbnbox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isbnbox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_isbnbox1ActionPerformed
+
+    private void isbnbox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isbnbox2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_isbnbox2ActionPerformed
+
+    private void isbnbox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isbnbox3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_isbnbox3ActionPerformed
+
+    private void isbnbox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isbnbox4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_isbnbox4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1114,10 +1261,17 @@ Sachi.staff.Settings.Ui.Add_New_Publishers addpub = new Sachi.staff.Settings.Ui.
     private javax.swing.ButtonGroup buttonGroup;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JTextField classificationNolabel;
+    private javax.swing.JComboBox<String> copiesAmountBox;
     private javax.swing.JLabel copyamountbix;
     private javax.swing.JComboBox<String> generecombobox;
     private javax.swing.JTextField isbnbox;
+    private javax.swing.JTextField isbnbox1;
+    private javax.swing.JTextField isbnbox2;
+    private javax.swing.JTextField isbnbox3;
+    private javax.swing.JTextField isbnbox4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
@@ -1146,6 +1300,8 @@ Sachi.staff.Settings.Ui.Add_New_Publishers addpub = new Sachi.staff.Settings.Ui.
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

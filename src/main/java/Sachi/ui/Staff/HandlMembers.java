@@ -1,6 +1,8 @@
 package Sachi.ui.Staff;
 
 import Sachi.staff.book.ui.Book_issue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.Connection;
@@ -28,6 +30,7 @@ public class HandlMembers extends javax.swing.JFrame {
         setNextMemberId();
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        
     }
 
     private int getNextMemberId() {
@@ -48,13 +51,99 @@ public class HandlMembers extends javax.swing.JFrame {
 
     private void setNextMemberId() {
         int nextMemberId = getNextMemberId();
-        mRegistrationNo.setText(String.valueOf(nextMemberId)); 
+       mRegistrationNo.setText(String.valueOf(nextMemberId)); 
     }
 
   private void insertMemberData() {
     try (Connection conn = new Helper.DatabaseConnection().connection();) {
         String mname = Mnamebox.getText();
         String maddress = addressbox.getText();
+        String reservedSec = (String) typecombobox.getSelectedItem();
+        Date mbirthdate = birthdate.getDatoFecha();
+        SimpleDateFormat birthdateString = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = birthdateString.format(mbirthdate);
+        Date mRegisDate = dateFormat.parse(regDate1.getText());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mRegisDate);
+        calendar.add(Calendar.YEAR, 1);
+        String membershipEndDate = dateFormat.format(calendar.getTime());
+        String issueBookAmount = bookamountbox.getText().trim(); // Trim the input string here
+        int amount = Integer.parseInt(issueBookAmount); // Now parse the trimmed string
+
+        String hContact = homecontactbox.getText();
+
+        // Certifier and guarantor fields
+        String cFullName = cFullnamebox.getText();
+        String cDesignation = cDesignationbox.getText();
+        String caddress = cAddressbox.getText();
+        String gcontactNo = gContactNo.getText();
+        String gFullname = gnamebox.getText();
+        String gOccupation = goccupationbox.getText();
+        String gNIC = gnicbox.getText();
+        String gAddress = gaddresbox.getText();
+
+        // Check if the member type is the one that should skip certain fields
+        boolean isSpecialMember = "Security Deposit holder".equals(reservedSec);
+
+        // Validate common details
+        if (mname.isEmpty() || maddress.isEmpty() || mbirthdate == null || hContact.isEmpty() || issueBookAmount.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
+            return;
+        }
+
+        // Validate that special members do not fill certifier and guarantor fields
+        if (isSpecialMember && (!cFullName.isEmpty() || !cDesignation.isEmpty() || !caddress.isEmpty() ||
+            !gFullname.isEmpty() || !gOccupation.isEmpty() || !gNIC.isEmpty() || !gAddress.isEmpty())) {
+            JOptionPane.showMessageDialog(this, "Security deposit holder does not require certifier and guarantor information.");
+            return;
+        }
+
+        String sql;
+        if (isSpecialMember) {
+            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        } else {
+            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, certifier_Name, certifier_Address, certifier_designation, G_fullname, G_NIC_No, G_contactNo, G_occupation, m_RegistrationDate, membership_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        }
+
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setString(1, mname);
+            pst.setString(2, maddress);
+            pst.setDate(3, java.sql.Date.valueOf(formattedDate));
+            pst.setString(4, hContact);
+            pst.setInt(5, amount);
+            pst.setString(6, reservedSec);
+            pst.setDate(7, new java.sql.Date(mRegisDate.getTime()));
+            pst.setDate(8, java.sql.Date.valueOf(membershipEndDate));
+
+            if (!isSpecialMember) {
+                pst.setString(9, cFullName);
+                pst.setString(10, caddress);
+                pst.setString(11, cDesignation);
+                pst.setString(12, gFullname);
+                pst.setString(13, gOccupation);
+                pst.setString(14, gNIC);
+                pst.setString(15, gAddress);
+                pst.setString(16, gcontactNo);
+            }
+
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Member registration is successful");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Failed to insert member data");
+    } catch (ParseException ex) {
+        Logger.getLogger(HandlMembers.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}
+
+  //child application filling
+  /*
+  private void insertChildMemberData() {
+    try (Connection conn = new Helper.DatabaseConnection().connection();) {
+        String cmname = Mcnamebox1.getText();
+        String cmaddress = addressbox.getText();
         String reservedSec = (String) typecombobox.getSelectedItem();
         Date mbirthdate = birthdate.getDatoFecha();
         SimpleDateFormat birthdateString = new SimpleDateFormat("yyyy-MM-dd");
@@ -86,7 +175,7 @@ public class HandlMembers extends javax.swing.JFrame {
         boolean isSpecialMember = "Security Deposit holder".equals(reservedSec);
 
         // Validate common details
-        if (mname.isEmpty() || maddress.isEmpty() || mbirthdate == null || hContact.isEmpty() || 
+        if (cmname.isEmpty() || cmaddress.isEmpty() || mbirthdate == null || hContact.isEmpty() || 
             mContact.isEmpty() || oContact.isEmpty() || moccupation.isEmpty() || issueBookAmount.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
             return;
@@ -107,8 +196,8 @@ public class HandlMembers extends javax.swing.JFrame {
         }
 
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, mname);
-            pst.setString(2, maddress);
+            pst.setString(1, cmname);
+            pst.setString(2, cmaddress);
             pst.setDate(3, java.sql.Date.valueOf(formattedDate));
             pst.setString(4, moccupation);
             pst.setString(5, hContact);
@@ -140,7 +229,7 @@ public class HandlMembers extends javax.swing.JFrame {
     } catch (ParseException ex) {
         Logger.getLogger(HandlMembers.class.getName()).log(Level.SEVERE, null, ex);
     }
-}
+}*/
 private void clearFields() {
     Mnamebox.setText("");
     addressbox.setText("");
@@ -149,9 +238,9 @@ private void clearFields() {
     regDate1.setText("");
     bookamountbox.setText("");
     homecontactbox.setText("");
-    mobilecontactbox.setText("");
-    officecontactbox.setText("");
-    moccupationbox.setText("");
+//    mobilecontactbox.setText("");
+  //  officecontactbox.setText("");
+  //  moccupationbox.setText("");
     cFullnamebox.setText("");
     cDesignationbox.setText("");
     cAddressbox.setText("");
@@ -197,31 +286,25 @@ private void clearFields() {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jLayeredPane1 = new javax.swing.JLayeredPane();
         jPanel13 = new javax.swing.JPanel();
-        jLabel45 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel46 = new javax.swing.JLabel();
         jLabel47 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
         birthdate = new rojeru_san.componentes.RSDateChooser();
-        mRegistrationNo = new javax.swing.JLabel();
         Mnamebox = new javax.swing.JTextField();
         addressbox = new javax.swing.JTextField();
         registrationdate = new javax.swing.JLabel();
         jLabel48 = new javax.swing.JLabel();
         homecontactbox = new javax.swing.JTextField();
-        jLabel49 = new javax.swing.JLabel();
-        mobilecontactbox = new javax.swing.JTextField();
-        jLabel50 = new javax.swing.JLabel();
-        officecontactbox = new javax.swing.JTextField();
-        moccupationbox = new javax.swing.JTextField();
         jLabel72 = new javax.swing.JLabel();
         bookamountbox = new javax.swing.JTextField();
-        officecontactbox1 = new javax.swing.JTextField();
-        jLabel20 = new javax.swing.JLabel();
         regDate1 = new javax.swing.JTextField();
+        jDesktopPaneControl = new javax.swing.JDesktopPane();
+        typecombobox = new javax.swing.JComboBox<>();
+        jLabel15 = new javax.swing.JLabel();
+        mRegistrationNo = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jLayeredPane2 = new javax.swing.JLayeredPane();
         jPanel17 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
@@ -250,9 +333,11 @@ private void clearFields() {
         jPanel4 = new javax.swing.JPanel();
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
-        typecombobox = new javax.swing.JComboBox<>();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -558,14 +643,14 @@ private void clearFields() {
 
         jPanel1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(751, 68, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 12, 1859, 76));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -2, 1859, 90));
 
         jPanel9.setBackground(new java.awt.Color(0, 0, 0));
         jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jTabbedPane1.setBackground(new java.awt.Color(0, 0, 0));
         jTabbedPane1.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(51, 102, 0)));
-        jTabbedPane1.setForeground(new java.awt.Color(255, 255, 255));
+        jTabbedPane1.setForeground(new java.awt.Color(0, 0, 0));
         jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         jTabbedPane1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jTabbedPane1.addContainerListener(new java.awt.event.ContainerAdapter() {
@@ -582,41 +667,29 @@ private void clearFields() {
         jPanel13.setForeground(new java.awt.Color(255, 255, 255));
         jPanel13.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel45.setFont(new java.awt.Font("Dialog", 1, 20)); // NOI18N
-        jLabel45.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel45.setText("Member Details");
-        jLabel45.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
-        jPanel13.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(13, 13, 161, -1));
-
-        jLabel15.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/AddNewBookIcons/icons8_Collaborator_Male_26px.png"))); // NOI18N
-        jLabel15.setText("MemberShip No");
-        jPanel13.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 70, 180, -1));
-
         jLabel16.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/AddNewBookIcons/icons8_Collaborator_Male_26px.png"))); // NOI18N
         jLabel16.setText("Member Name");
-        jPanel13.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, 160, -1));
+        jPanel13.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 70, 160, -1));
 
         jLabel17.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel17.setForeground(new java.awt.Color(255, 255, 255));
         jLabel17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/AddNewBookIcons/icons8_Contact_26px.png"))); // NOI18N
         jLabel17.setText("Address");
-        jPanel13.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 230, 130, -1));
+        jPanel13.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 130, -1));
 
         jLabel18.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel18.setForeground(new java.awt.Color(255, 255, 255));
         jLabel18.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/icons8-birthday-24.png"))); // NOI18N
         jLabel18.setText("Date of birth");
-        jPanel13.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 300, 127, -1));
+        jPanel13.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 127, 30));
 
         jLabel46.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel46.setForeground(new java.awt.Color(255, 255, 255));
         jLabel46.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/icons8-calendar-24.png"))); // NOI18N
         jLabel46.setText("Date of Registration");
-        jPanel13.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 390, 200, -1));
+        jPanel13.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 170, 200, -1));
 
         jLabel47.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel47.setForeground(new java.awt.Color(255, 255, 255));
@@ -624,34 +697,27 @@ private void clearFields() {
         jLabel47.setText("Contact No");
         jPanel13.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 70, 140, -1));
 
-        jLabel19.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/icons8-id-verified-24.png"))); // NOI18N
-        jLabel19.setText("NIC No");
-        jPanel13.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 430, 100, -1));
-
         birthdate.setBackground(new java.awt.Color(0, 102, 0));
-        birthdate.setForeground(new java.awt.Color(255, 255, 255));
+        birthdate.setForeground(new java.awt.Color(0, 0, 0));
         birthdate.setColorBackground(new java.awt.Color(51, 102, 0));
         birthdate.setColorButtonHover(new java.awt.Color(204, 255, 204));
         birthdate.setColorForeground(new java.awt.Color(0, 0, 0));
         birthdate.setPlaceholder("Select date\n\n");
-        jPanel13.add(birthdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(232, 280, 290, -1));
+        jPanel13.add(birthdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 250, 290, -1));
 
-        mRegistrationNo.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        mRegistrationNo.setForeground(new java.awt.Color(255, 255, 255));
-        mRegistrationNo.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(51, 102, 0)));
-        jPanel13.add(mRegistrationNo, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 60, 170, 35));
-
+        Mnamebox.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        Mnamebox.setForeground(new java.awt.Color(0, 0, 0));
         Mnamebox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MnameboxActionPerformed(evt);
             }
         });
-        jPanel13.add(Mnamebox, new org.netbeans.lib.awtextra.AbsoluteConstraints(232, 130, 290, 40));
+        jPanel13.add(Mnamebox, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 70, 290, 40));
 
+        addressbox.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        addressbox.setForeground(new java.awt.Color(0, 0, 0));
         addressbox.setText("\n");
-        jPanel13.add(addressbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(232, 210, 290, 50));
+        jPanel13.add(addressbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 150, 290, 50));
 
         registrationdate.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         registrationdate.setForeground(new java.awt.Color(255, 255, 255));
@@ -662,46 +728,24 @@ private void clearFields() {
         jLabel48.setText("Home");
         jPanel13.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 120, 81, -1));
 
-        homecontactbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        homecontactbox.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        homecontactbox.setForeground(new java.awt.Color(0, 0, 0));
         homecontactbox.setText("\n");
         homecontactbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 homecontactboxActionPerformed(evt);
             }
         });
-        jPanel13.add(homecontactbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 118, 240, 30));
-
-        jLabel49.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel49.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel49.setText("Mobile");
-        jPanel13.add(jLabel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 170, 99, -1));
-
-        mobilecontactbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        mobilecontactbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mobilecontactboxActionPerformed(evt);
-            }
-        });
-        jPanel13.add(mobilecontactbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 168, 240, 30));
-
-        jLabel50.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel50.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel50.setText("Official");
-        jPanel13.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 220, 99, -1));
-
-        officecontactbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jPanel13.add(officecontactbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 420, 270, 40));
-
-        moccupationbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jPanel13.add(moccupationbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 318, 240, 30));
+        jPanel13.add(homecontactbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 110, 240, 30));
 
         jLabel72.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel72.setForeground(new java.awt.Color(255, 255, 255));
         jLabel72.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/overdue books.png"))); // NOI18N
         jLabel72.setText("No of Books issue");
-        jPanel13.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 360, 210, -1));
+        jPanel13.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, 210, -1));
 
-        bookamountbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        bookamountbox.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        bookamountbox.setForeground(new java.awt.Color(0, 0, 0));
         bookamountbox.setText("\n");
         bookamountbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -710,26 +754,103 @@ private void clearFields() {
         });
         jPanel13.add(bookamountbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 340, 170, 40));
 
-        officecontactbox1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jPanel13.add(officecontactbox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 218, 240, 30));
-
-        jLabel20.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel20.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel20.setText("Occupation");
-        jPanel13.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 320, -1, -1));
-
-        regDate1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        regDate1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        regDate1.setForeground(new java.awt.Color(0, 0, 0));
         regDate1.setText("\n");
         regDate1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 regDate1ActionPerformed(evt);
             }
         });
-        jPanel13.add(regDate1, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 390, 240, 40));
+        jPanel13.add(regDate1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 160, 240, 40));
 
-        jLayeredPane1.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 1110, 560));
+        jDesktopPaneControl.setBackground(new java.awt.Color(0, 0, 0));
 
-        jTabbedPane1.addTab("Member Details", jLayeredPane1);
+        javax.swing.GroupLayout jDesktopPaneControlLayout = new javax.swing.GroupLayout(jDesktopPaneControl);
+        jDesktopPaneControl.setLayout(jDesktopPaneControlLayout);
+        jDesktopPaneControlLayout.setHorizontalGroup(
+            jDesktopPaneControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1040, Short.MAX_VALUE)
+        );
+        jDesktopPaneControlLayout.setVerticalGroup(
+            jDesktopPaneControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 150, Short.MAX_VALUE)
+        );
+
+        jPanel13.add(jDesktopPaneControl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 1040, 150));
+
+        typecombobox.setBackground(new java.awt.Color(0, 0, 0));
+        typecombobox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        typecombobox.setForeground(new java.awt.Color(153, 102, 0));
+        typecombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select the member type", "Adult", "Child", "Security Deposit holder", " " }));
+        typecombobox.setToolTipText("Select the member Type\nAdult\nChild\nSecurity Deposit holder");
+        typecombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                typecomboboxActionPerformed(evt);
+            }
+        });
+        jPanel13.add(typecombobox, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 280, 40));
+        typecombobox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    String selectedType = (String) e.getItem();
+                    boolean isSpecialMember = "Security Deposit holder".equals(selectedType);
+
+                    cFullnamebox.setEnabled(!isSpecialMember);
+                    cDesignationbox.setEnabled(!isSpecialMember);
+                    cAddressbox.setEnabled(!isSpecialMember);
+                    gnamebox.setEnabled(!isSpecialMember);
+                    goccupationbox.setEnabled(!isSpecialMember);
+                    gnicbox.setEnabled(!isSpecialMember);
+                    gaddresbox.setEnabled(!isSpecialMember);
+
+                    if (isSpecialMember) {
+                        cFullnamebox.setText("");
+                        cDesignationbox.setText("");
+                        cAddressbox.setText("");
+                        gnamebox.setText("");
+                        goccupationbox.setText("");
+                        gnicbox.setText("");
+                        gaddresbox.setText("");
+                    }
+                }
+            }
+        });
+        typecombobox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedType = (String) typecombobox.getSelectedItem();
+                jDesktopPaneControl.removeAll();
+                if ("Child".equals(selectedType)) {
+                    childframe f2 = new childframe();
+                    jDesktopPaneControl.add(f2).setVisible(true);
+                } else {
+                    NewJInternalFrame f1 = new NewJInternalFrame();
+                    jDesktopPaneControl.add(f1).setVisible(true);
+                }
+                jDesktopPaneControl.revalidate();
+                jDesktopPaneControl.repaint();
+            }
+        });
+
+        jLabel15.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/AddNewBookIcons/icons8_Collaborator_Male_26px.png"))); // NOI18N
+        jLabel15.setText("MemberShip No");
+        jPanel13.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 30, 180, -1));
+
+        mRegistrationNo.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        mRegistrationNo.setForeground(new java.awt.Color(255, 255, 255));
+        mRegistrationNo.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(51, 102, 0)));
+        jPanel13.add(mRegistrationNo, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 20, 100, 35));
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Add members.png"))); // NOI18N
+        jPanel13.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, -1));
+
+        jLayeredPane1.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1110, 550));
+
+        jTabbedPane1.addTab("Member Application", jLayeredPane1);
 
         jPanel17.setBackground(new java.awt.Color(0, 0, 0));
         jPanel17.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(51, 102, 0)));
@@ -761,7 +882,7 @@ private void clearFields() {
         jLabel92.setText("Contact No");
 
         gnicbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        gnicbox.setForeground(new java.awt.Color(255, 153, 0));
+        gnicbox.setForeground(new java.awt.Color(0, 0, 0));
         gnicbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 gnicboxActionPerformed(evt);
@@ -769,7 +890,7 @@ private void clearFields() {
         });
 
         gContactNo.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        gContactNo.setForeground(new java.awt.Color(255, 153, 0));
+        gContactNo.setForeground(new java.awt.Color(0, 0, 0));
         gContactNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 gContactNoActionPerformed(evt);
@@ -777,7 +898,7 @@ private void clearFields() {
         });
 
         gnamebox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        gnamebox.setForeground(new java.awt.Color(255, 153, 0));
+        gnamebox.setForeground(new java.awt.Color(0, 0, 0));
         gnamebox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 gnameboxActionPerformed(evt);
@@ -785,10 +906,10 @@ private void clearFields() {
         });
 
         goccupationbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        goccupationbox.setForeground(new java.awt.Color(255, 153, 0));
+        goccupationbox.setForeground(new java.awt.Color(0, 0, 0));
 
         gaddresbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        gaddresbox.setForeground(new java.awt.Color(255, 153, 0));
+        gaddresbox.setForeground(new java.awt.Color(0, 0, 0));
         gaddresbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 gaddresboxActionPerformed(evt);
@@ -849,7 +970,7 @@ private void clearFields() {
                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel81)
                     .addComponent(gnamebox, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel89)
                     .addComponent(goccupationbox, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -909,13 +1030,13 @@ private void clearFields() {
         jLabel74.setText("Address(School/Company/Institution)");
 
         cDesignationbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        cDesignationbox.setForeground(new java.awt.Color(0, 102, 102));
+        cDesignationbox.setForeground(new java.awt.Color(0, 0, 0));
 
         cAddressbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        cAddressbox.setForeground(new java.awt.Color(0, 102, 102));
+        cAddressbox.setForeground(new java.awt.Color(0, 0, 0));
 
         cFullnamebox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        cFullnamebox.setForeground(new java.awt.Color(0, 102, 102));
+        cFullnamebox.setForeground(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout jPanel21Layout = new javax.swing.GroupLayout(jPanel21);
         jPanel21.setLayout(jPanel21Layout);
@@ -982,7 +1103,7 @@ private void clearFields() {
                 .addComponent(jLabel59)
                 .addGap(34, 34, 34)
                 .addComponent(jPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(103, Short.MAX_VALUE))
+                .addContainerGap(98, Short.MAX_VALUE))
         );
 
         jButton3.setBackground(new java.awt.Color(51, 102, 0));
@@ -1028,7 +1149,7 @@ private void clearFields() {
 
         jTabbedPane1.addTab("Certifier Details", jPanel2);
 
-        jPanel9.add(jTabbedPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 40, 1050, 540));
+        jPanel9.add(jTabbedPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 30, 1050, 590));
 
         jPanel4.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -1053,7 +1174,7 @@ private void clearFields() {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel9.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 610, 173, -1));
+        jPanel9.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 630, 173, -1));
 
         jButton6.setBackground(new java.awt.Color(51, 102, 0));
         jButton6.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
@@ -1063,54 +1184,34 @@ private void clearFields() {
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel9.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(1113, 610, 140, -1));
-
-        typecombobox.setBackground(new java.awt.Color(0, 0, 0));
-        typecombobox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        typecombobox.setForeground(new java.awt.Color(153, 102, 0));
-        typecombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select the member type", "Adult", "Child", "Security Deposit holder", " " }));
-        typecombobox.setToolTipText("Select the member Type\nAdult\nChild\nSecurity Deposit holder");
-        typecombobox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                typecomboboxActionPerformed(evt);
-            }
-        });
-        jPanel9.add(typecombobox, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 280, 40));
-        typecombobox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    String selectedType = (String) e.getItem();
-                    boolean isSpecialMember = "Security Deposit holder".equals(selectedType);
-
-                    cFullnamebox.setEnabled(!isSpecialMember);
-                    cDesignationbox.setEnabled(!isSpecialMember);
-                    cAddressbox.setEnabled(!isSpecialMember);
-                    gnamebox.setEnabled(!isSpecialMember);
-                    goccupationbox.setEnabled(!isSpecialMember);
-                    gnicbox.setEnabled(!isSpecialMember);
-                    gaddresbox.setEnabled(!isSpecialMember);
-
-                    if (isSpecialMember) {
-                        cFullnamebox.setText("");
-                        cDesignationbox.setText("");
-                        cAddressbox.setText("");
-                        gnamebox.setText("");
-                        goccupationbox.setText("");
-                        gnicbox.setText("");
-                        gaddresbox.setText("");
-                    }
-                }
-            }
-        });
-
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Add members.png"))); // NOI18N
-        jPanel9.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 120, -1, -1));
+        jPanel9.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 630, 140, -1));
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/Free_Vector___Documents_concept_illustration-removebg-preview.png"))); // NOI18N
         jPanel9.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 220, 280, 380));
 
-        getContentPane().add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 80, 1629, -1));
+        jLabel19.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/AddNewBookIcons/icons8_Collaborator_Male_26px.png"))); // NOI18N
+        jLabel19.setText("Child Members :");
+        jPanel9.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 180, -1));
+
+        jLabel7.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 153, 51));
+        jLabel7.setText("jLabel7");
+        jPanel9.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 120, 60, 40));
+
+        jLabel20.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel20.setIcon(new javax.swing.ImageIcon(getClass().getResource("/AddNewBookIcons/icons8_Collaborator_Male_26px.png"))); // NOI18N
+        jLabel20.setText("Adult Members :");
+        jPanel9.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 180, -1));
+
+        jLabel8.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 153, 51));
+        jLabel8.setText("jLabel7");
+        jPanel9.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 65, 60, 40));
+
+        getContentPane().add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 90, 1620, 700));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -1178,45 +1279,9 @@ private void clearFields() {
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel71MouseClicked
 
-    private void MnameboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MnameboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_MnameboxActionPerformed
-
-    private void homecontactboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homecontactboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_homecontactboxActionPerformed
-
-    private void mobilecontactboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mobilecontactboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mobilecontactboxActionPerformed
-
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         insertMemberData();
     }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jTabbedPane1ComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_jTabbedPane1ComponentAdded
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTabbedPane1ComponentAdded
-
-    private void bookamountboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookamountboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bookamountboxActionPerformed
-
-    private void gnicboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gnicboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_gnicboxActionPerformed
-
-    private void gnameboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gnameboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_gnameboxActionPerformed
-
-    private void gaddresboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gaddresboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_gaddresboxActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
 
     private void typecomboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_typecomboboxActionPerformed
       
@@ -1224,17 +1289,49 @@ private void clearFields() {
  // TODO add your handling code here:
     }//GEN-LAST:event_typecomboboxActionPerformed
 
-    private void regDate1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regDate1ActionPerformed
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+clearFields();       // TODO add your handling code here:
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jTabbedPane1ComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_jTabbedPane1ComponentAdded
         // TODO add your handling code here:
-    }//GEN-LAST:event_regDate1ActionPerformed
+    }//GEN-LAST:event_jTabbedPane1ComponentAdded
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void gaddresboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gaddresboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_gaddresboxActionPerformed
+
+    private void gnameboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gnameboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_gnameboxActionPerformed
 
     private void gContactNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gContactNoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_gContactNoActionPerformed
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-clearFields();       // TODO add your handling code here:
-    }//GEN-LAST:event_jButton6ActionPerformed
+    private void gnicboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gnicboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_gnicboxActionPerformed
+
+    private void regDate1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regDate1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_regDate1ActionPerformed
+
+    private void bookamountboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookamountboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bookamountboxActionPerformed
+
+    private void homecontactboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homecontactboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_homecontactboxActionPerformed
+
+    private void MnameboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MnameboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_MnameboxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1289,6 +1386,7 @@ clearFields();       // TODO add your handling code here:
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JDesktopPane jDesktopPaneControl;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel15;
@@ -1307,13 +1405,10 @@ clearFields();       // TODO add your handling code here:
     private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel43;
     private javax.swing.JLabel jLabel44;
-    private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel46;
     private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel48;
-    private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel59;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel61;
@@ -1324,12 +1419,14 @@ clearFields();       // TODO add your handling code here:
     private javax.swing.JLabel jLabel67;
     private javax.swing.JLabel jLabel68;
     private javax.swing.JLabel jLabel69;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel70;
     private javax.swing.JLabel jLabel71;
     private javax.swing.JLabel jLabel72;
     private javax.swing.JLabel jLabel73;
     private javax.swing.JLabel jLabel74;
     private javax.swing.JLabel jLabel75;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel81;
     private javax.swing.JLabel jLabel86;
     private javax.swing.JLabel jLabel89;
@@ -1351,10 +1448,6 @@ clearFields();       // TODO add your handling code here:
     private javax.swing.JPanel jPanel9;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel mRegistrationNo;
-    private javax.swing.JTextField mobilecontactbox;
-    private javax.swing.JTextField moccupationbox;
-    private javax.swing.JTextField officecontactbox;
-    private javax.swing.JTextField officecontactbox1;
     private javax.swing.JTextField regDate1;
     private javax.swing.JLabel registrationdate;
     private javax.swing.JComboBox<String> typecombobox;
