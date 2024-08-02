@@ -3,6 +3,7 @@ package Sachi.staff.Settings.Ui;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
@@ -27,23 +28,34 @@ private void AddAuthor() {
         return;
     }
 
-    String sql = "INSERT INTO author (Author_Name) VALUES (?)";
+    String checkSql = "SELECT COUNT(*) FROM author WHERE Author_Name = ?";
+    String insertSql = "INSERT INTO author (Author_Name) VALUES (?)";
 
     try (Connection conn = new Helper.DatabaseConnection().connection(); 
-         PreparedStatement p = conn.prepareStatement(sql)) {
+         PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+         PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
 
+        // Check if the author already exists
+        checkStmt.setString(1, authorName);
+        ResultSet rs = checkStmt.executeQuery();
+        rs.next();
+        int count = rs.getInt(1);
         
-        p.setString(1, authorName);
+        if (count > 0) {
+            JOptionPane.showMessageDialog(null, "Author name already exists.", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else {
+            // Insert the new author name
+            insertStmt.setString(1, authorName);
+            insertStmt.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Author name inserted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
 
-       
-        p.executeUpdate();
-
-        JOptionPane.showMessageDialog(null, "Author name inserted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
     } catch (SQLException e) {
         e.printStackTrace();
         JOptionPane.showMessageDialog(null, "Error inserting author name: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+
 
 
     

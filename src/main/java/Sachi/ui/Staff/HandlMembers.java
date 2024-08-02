@@ -11,10 +11,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -22,7 +26,10 @@ import javax.swing.SpinnerNumberModel;
 public class HandlMembers extends javax.swing.JFrame {
 
     private SimpleDateFormat dateFormat;
-
+    
+ private JInternalFrame internalFrame;//internal frae initializing
+ private JInternalFrame internalFrame2Child;//for child one
+ 
     public HandlMembers() {
         initComponents();
 
@@ -30,6 +37,20 @@ public class HandlMembers extends javax.swing.JFrame {
         setNextMemberId();
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        
+    }
+    // Method to call the internal frame method
+    private void callInternalFrameMethod() {
+        if (internalFrame instanceof NewJInternalFrame) {
+            ((NewJInternalFrame) internalFrame).insertAdultMemberData();
+        }
+        
+    }
+
+    private void callInternalFrameMethod2() {
+        if (internalFrame instanceof childframe ) {
+            ((childframe ) internalFrame).insertChildMemberData() ;
+        }
         
     }
 
@@ -54,23 +75,65 @@ public class HandlMembers extends javax.swing.JFrame {
        mRegistrationNo.setText(String.valueOf(nextMemberId)); 
     }
 
-  private void insertMemberData() {
+   public void insertMemberData() {
     try (Connection conn = new Helper.DatabaseConnection().connection();) {
         String mname = Mnamebox.getText();
         String maddress = addressbox.getText();
         String reservedSec = (String) typecombobox.getSelectedItem();
-        Date mbirthdate = birthdate.getDatoFecha();
-        SimpleDateFormat birthdateString = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = birthdateString.format(mbirthdate);
-        Date mRegisDate = dateFormat.parse(regDate1.getText());
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(mRegisDate);
-        calendar.add(Calendar.YEAR, 1);
-        String membershipEndDate = dateFormat.format(calendar.getTime());
-        String issueBookAmount = bookamountbox.getText().trim(); // Trim the input string here
-        int amount = Integer.parseInt(issueBookAmount); // Now parse the trimmed string
 
+        // Retrieve birthdate as java.util.Date
+        Date birthdateText = birthdate.getDatoFecha(); 
+        
+        // Check if birthdateText is null
+        if (birthdateText == null) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid birthdate.", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit method on error
+        }
+
+        // Convert birthdate to LocalDate
+        LocalDate mbirthdate = new java.sql.Date(birthdateText.getTime()).toLocalDate();
+
+        // Retrieve registration date from the JTextField as String
+        String regDateText = regDate1.getText();
+        LocalDate mRegisDate;
+        try {
+            mRegisDate = LocalDate.parse(regDateText, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid registration date format. Please use yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit method on error
+        }
+
+        // Calculate the membership end date by adding one year
+        LocalDate membershipEndDate = mRegisDate.plusYears(1);
+
+        // Get additional data from the frames
         String hContact = homecontactbox.getText();
+        int amount;
+        try {
+            String issueBookAmount = bookamountbox.getText().trim();
+            amount = Integer.parseInt(issueBookAmount);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number for issued book amount.", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit method on error
+        }
+
+        String mOfficialNo = "", mMobile = "", nic = "", occupation = "";
+  if ("Child".equals(reservedSec)) {
+    if (f2 != null) {
+        mOfficialNo = f2.getMobilecontactbox().getText();
+        mMobile = f2.getOfficecontactbox1().getText();
+        nic = f2.getNicNo().getText();
+        occupation = f2.getOccupation1().getText();
+    }
+} else {
+    if (f1 != null) {
+        mOfficialNo = f1.getMobilecontactbox().getText();
+        mMobile = f1.getOfficecontactbox1().getText();
+        nic = f1.getNicNo().getText();
+        occupation = f1.getOccupation1().getText();
+    }
+}
+
 
         // Certifier and guarantor fields
         String cFullName = cFullnamebox.getText();
@@ -98,32 +161,37 @@ public class HandlMembers extends javax.swing.JFrame {
             return;
         }
 
+        // Prepare SQL query based on member type
         String sql;
         if (isSpecialMember) {
-            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date, B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         } else {
-            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, certifier_Name, certifier_Address, certifier_designation, G_fullname, G_NIC_No, G_contactNo, G_occupation, m_RegistrationDate, membership_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date, B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation, certifier_Name, certifier_Address, certifier_desigation, G_fullname, G_NIC_No, G_contactNo, G_occupation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         }
 
+        // Execute the SQL statement
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, mname);
             pst.setString(2, maddress);
-            pst.setDate(3, java.sql.Date.valueOf(formattedDate));
+            pst.setDate(3, java.sql.Date.valueOf(mbirthdate)); // Set birthdate
             pst.setString(4, hContact);
             pst.setInt(5, amount);
             pst.setString(6, reservedSec);
-            pst.setDate(7, new java.sql.Date(mRegisDate.getTime()));
-            pst.setDate(8, java.sql.Date.valueOf(membershipEndDate));
+            pst.setDate(7, java.sql.Date.valueOf(mRegisDate)); // Set registration date
+            pst.setDate(8, java.sql.Date.valueOf(membershipEndDate)); // Set membership end date
+            pst.setString(9, mOfficialNo);
+            pst.setString(10, mMobile);
+            pst.setString(11, nic);
+            pst.setString(12, occupation);
 
             if (!isSpecialMember) {
-                pst.setString(9, cFullName);
-                pst.setString(10, caddress);
-                pst.setString(11, cDesignation);
-                pst.setString(12, gFullname);
-                pst.setString(13, gOccupation);
-                pst.setString(14, gNIC);
-                pst.setString(15, gAddress);
-                pst.setString(16, gcontactNo);
+                pst.setString(13, cFullName);
+                pst.setString(14, caddress);
+                pst.setString(15, cDesignation);
+                pst.setString(16, gFullname);
+                pst.setString(17, gOccupation);
+                pst.setString(18, gNIC);
+                pst.setString(19, gcontactNo);
             }
 
             pst.executeUpdate();
@@ -133,10 +201,10 @@ public class HandlMembers extends javax.swing.JFrame {
     } catch (SQLException e) {
         e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Failed to insert member data");
-    } catch (ParseException ex) {
-        Logger.getLogger(HandlMembers.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    } 
 }
+
+
 
   //child application filling
   /*
@@ -784,6 +852,11 @@ private void clearFields() {
         typecombobox.setForeground(new java.awt.Color(153, 102, 0));
         typecombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select the member type", "Adult", "Child", "Security Deposit holder", " " }));
         typecombobox.setToolTipText("Select the member Type\nAdult\nChild\nSecurity Deposit holder");
+        typecombobox.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                typecomboboxMouseClicked(evt);
+            }
+        });
         typecombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 typecomboboxActionPerformed(evt);
@@ -817,16 +890,17 @@ private void clearFields() {
                 }
             }
         });
+
         typecombobox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedType = (String) typecombobox.getSelectedItem();
                 jDesktopPaneControl.removeAll();
                 if ("Child".equals(selectedType)) {
-                    childframe f2 = new childframe();
+                    f2 = new childframe();
                     jDesktopPaneControl.add(f2).setVisible(true);
                 } else {
-                    NewJInternalFrame f1 = new NewJInternalFrame();
+                    f1 = new NewJInternalFrame();
                     jDesktopPaneControl.add(f1).setVisible(true);
                 }
                 jDesktopPaneControl.revalidate();
@@ -1281,6 +1355,8 @@ private void clearFields() {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         insertMemberData();
+        callInternalFrameMethod();
+        callInternalFrameMethod2();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void typecomboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_typecomboboxActionPerformed
@@ -1332,6 +1408,10 @@ clearFields();       // TODO add your handling code here:
     private void MnameboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MnameboxActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_MnameboxActionPerformed
+
+    private void typecomboboxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_typecomboboxMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_typecomboboxMouseClicked
 
     /**
      * @param args the command line arguments

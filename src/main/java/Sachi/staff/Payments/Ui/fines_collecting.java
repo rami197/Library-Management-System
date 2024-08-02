@@ -8,6 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,18 +45,31 @@ public class fines_collecting extends javax.swing.JFrame {
             pst.setString(1, memberId);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    Date transactionDate = rs.getDate("transaction_Date");
+                    Date transactionDateSQL = rs.getDate("transaction_Date");
+
+                    // Convert java.sql.Date to java.util.Date
+                    java.util.Date transactionDate = new java.util.Date(transactionDateSQL.getTime());
+
+                    // Use Calendar to add two weeks
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(transactionDate);
+                    calendar.add(Calendar.DAY_OF_YEAR, 14);
+                    java.util.Date extendedDueDate = calendar.getTime();
+
+                    // Get current date
+                    java.util.Date currentDate = new java.util.Date();
 
                     // Calculate late days
-                    long millisPerDay = 24 * 60 * 60 * 1000;
-                    Date currentDate = new Date();
-                    long differenceMillis = currentDate.getTime() - transactionDate.getTime();
-                    int lateDays = (int) (differenceMillis / millisPerDay);
+                    long diffInMillis = currentDate.getTime() - extendedDueDate.getTime();
+                    long lateDays = diffInMillis / (1000 * 60 * 60 * 24);
 
-                    jLabel19.setText(""+lateDays);
-
-                    // Calculate fine
-                    calculateFine(memberId, lateDays, conn);
+                    if (lateDays > 0) {
+                        jLabel19.setText(Long.toString(lateDays));
+                        // Calculate fine only if there are late days
+                        calculateFine(memberId, (int) lateDays, conn);
+                    } else {
+                        jLabel19.setText("No late days");
+                    }
                 } else {
                     JOptionPane.showMessageDialog(null, "Member not found");
                 }
@@ -62,10 +79,6 @@ public class fines_collecting extends javax.swing.JFrame {
         Logger.getLogger(Security_deposit.class.getName()).log(Level.SEVERE, null, ex);
     }
 }
-
-
-
-
 private void calculateFine(String memberId, int lateDays, Connection conn) {
     try {System.out.println("ggggg");
         // Fetch member type

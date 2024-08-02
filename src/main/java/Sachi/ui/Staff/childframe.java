@@ -20,7 +20,7 @@ public class childframe extends javax.swing.JInternalFrame {
         initComponents();
     }
 
-    private void insertChildMemberData() {
+    public void insertChildMemberData() {
     try (Connection conn = new Helper.DatabaseConnection().connection()) {
         // Collect data from AdultMemberFrame
         String occupationSchool= moccupationbox1.getText();

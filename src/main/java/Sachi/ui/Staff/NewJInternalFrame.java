@@ -22,35 +22,22 @@ public class NewJInternalFrame extends javax.swing.JInternalFrame {
         initComponents();
     }
 
-    private void insertAdultMemberData() {
-    try (Connection conn = new Helper.DatabaseConnection().connection()) {
-        // Collect data from AdultMemberFrame
-        String mOfficialNo= mobilecontactbox.getText();
-        String mMobile = officecontactbox1.getText();
-        
-        
-        String nic  =nicNo.getText();
-        String occupation = occupation1.getText();
-        
-        // SQL Insert statement
-        String sql = "INSERT INTO borrower(B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation) VALUES (?, ?, ?, ?)";
-        
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, mOfficialNo);
-            pst.setString(2, mMobile);
-           
-            pst.setString(3, nic);
-            pst.setString(4, occupation);
-           
-            
-            pst.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Adult member registration is successful");
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Failed to insert adult member data");
+  public javax.swing.JTextField getMobilecontactbox() {
+        return mobilecontactbox;
     }
-}
+
+    public javax.swing.JTextField  getOfficecontactbox1() {
+        return officecontactbox1;
+    }
+
+    public javax.swing.JTextField getNicNo() {
+        return nicNo;
+    }
+
+    public javax.swing.JTextField  getOccupation1() {
+        return occupation1;
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

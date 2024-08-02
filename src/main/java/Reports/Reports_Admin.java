@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -614,7 +616,17 @@ try(Connection connection = new Helper.DatabaseConnection().connection()){
     }//GEN-LAST:event_rSButtonHover4ActionPerformed
 
     private void rSButtonHover6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover6ActionPerformed
-try(Connection connection = new Helper.DatabaseConnection().connection()){
+//Date fromDate = jDateChooser2.getDate();
+//Date toDate = jDateChooser1.getDate();
+//
+//// Create a HashMap and put the date objects
+//HashMap<String, Object> parameters = new HashMap<>();
+//parameters.put("fromd", fromDate);
+//parameters.put("tod", toDate);
+
+
+        
+        try(Connection connection = new Helper.DatabaseConnection().connection()){
               String reportpath= "C:\\Users\\USER\\Documents\\Reports\\fines.jrxml";
               JasperReport jr = JasperCompileManager.compileReport(reportpath);
               JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
