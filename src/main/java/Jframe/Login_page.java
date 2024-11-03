@@ -46,11 +46,13 @@ public class Login_page extends javax.swing.JFrame {
                                 Sachi.ui.Staff.Home_pg_1 home = new Sachi.ui.Staff.Home_pg_1();
                                 home.setVisible(true);
                                 dispose();
+                                JOptionPane.showMessageDialog(this, "Login Successful");
                                 break;
                             case "Librarian":
                                 Sachi_Ui_Admin.Librarian_home_pg lhome = new Sachi_Ui_Admin.Librarian_home_pg();
                                 lhome.setVisible(true);
                                 dispose();
+                                JOptionPane.showMessageDialog(this, "Login Successful");
                                 break;
                             default:
                                 JOptionPane.showMessageDialog(this, "Invalid Role");
@@ -62,7 +64,7 @@ public class Login_page extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(this, "user not Found");
                 }
-                JOptionPane.showMessageDialog(this, "Login Successful");
+                
 
             } catch (SQLException ex) {
                 Logger.getLogger(Login_page.class.getName()).log(Level.SEVERE, null, ex);
@@ -302,6 +304,7 @@ public class Login_page extends javax.swing.JFrame {
     }//GEN-LAST:event_usernamefieldActionPerformed
 
     private void loginbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginbuttonActionPerformed
+LoginDetails();
 
     }//GEN-LAST:event_loginbuttonActionPerformed
 

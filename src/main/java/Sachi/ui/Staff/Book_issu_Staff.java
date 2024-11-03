@@ -60,44 +60,61 @@ public class Book_issu_Staff extends javax.swing.JFrame {
     }
 }*/
 private void searchTable(String searchQuery) {
-        String sql = "SELECT bc.Accession_No, b.Genre, b.ISBN_No, b.Title, a.Author_Name FROM book b "
-                   + "INNER JOIN author a ON a.Author_ID = b.Author_ID "
-                   + "INNER JOIN bookcopies bc ON b.ISBN_No = bc.ISBN_No "
-                   + "WHERE b.ISBN_No LIKE ? "
-                   + "OR b.Genre LIKE ? "
-                   + "OR a.Author_Name LIKE ?";
+    // Updated SQL query to include checking for availability based on transactions
+    String sql = "SELECT bc.Accession_No, b.Genre, b.ISBN_No, b.Title, a.Author_Name, "
+               + "(CASE "
+               + "   WHEN t.transaction_type = 'Loan'  THEN 'Unavailable' "
+               + "   ELSE 'Available' "
+               + "END) AS Availability "
+               + "FROM book b "
+               + "INNER JOIN author a ON a.Author_ID = b.Author_ID "
+               + "INNER JOIN bookcopies bc ON b.ISBN_No = bc.ISBN_No "
+               + "LEFT JOIN transactions t ON bc.Accession_No = t.Accession_No "
+               + "AND t.transaction_date = (SELECT MAX(t2.transaction_date) "
+               + "                          FROM transactions t2 "
+               + "                          WHERE t2.Accession_No = bc.Accession_No) " // Get latest transaction
+               + "WHERE b.ISBN_No LIKE ? "
+               + "OR b.Genre LIKE ? "
+               + "OR b.Title LIKE ? "       // Search by book name (Title)
+               + "OR a.Author_Name LIKE ?";
 
-        try (Connection connection = new Helper.DatabaseConnection().connection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+    try (Connection connection = new Helper.DatabaseConnection().connection();
+         PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, "%" + searchQuery + "%");
-            stmt.setString(2, "%" + searchQuery + "%");
-            stmt.setString(3, "%" + searchQuery + "%");
+        // Set the same search query for ISBN_No, Genre, Title, and Author_Name
+        stmt.setString(1, "%" + searchQuery + "%");
+        stmt.setString(2, "%" + searchQuery + "%");
+        stmt.setString(3, "%" + searchQuery + "%"); // For Title (book name)
+        stmt.setString(4, "%" + searchQuery + "%");
 
-            ResultSet rs = stmt.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
+        ResultSet rs = stmt.executeQuery();
 
-            String[] columnNames = new String[columnCount];
-            for (int i = 1; i <= columnCount; i++) {
-                columnNames[i - 1] = metaData.getColumnName(i);
-            }
+        // Custom column titles (headers), now including "Availability"
+        String[] columnNames = {"Genre", "ISBN Number", "Book Title", "Author Name", "Availability"};
 
-            DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-            while (rs.next()) {
-                Object[] row = new Object[columnCount];
-                for (int i = 1; i <= columnCount; i++) {
-                    row[i - 1] = rs.getObject(i);
-                }
-                model.addRow(row);
-            }
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);  // Set custom column names
+        
+        while (rs.next()) {
+            // Adding the relevant data, including Availability
+            Object[] row = new Object[5]; // We now have 5 columns (Genre, ISBN, Title, Author, Availability)
+            row[0] = rs.getString("Genre");
+            row[1] = rs.getString("ISBN_No");
+            row[2] = rs.getString("Title");
+            row[3] = rs.getString("Author_Name");
+            row[4] = rs.getString("Availability");  // Availability is calculated using a CASE WHEN in the query
 
-            rSTableMetro1.setModel(model);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            model.addRow(row);
         }
+
+        rSTableMetro1.setModel(model);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+}
+
+
+
     //select * from book b inner join author a a.Author_ID = b.Author_ID where b.ISBN_No like '%?%' OR b.genre like ''%?% OR a.Author_Name like '%?%';
     //select * from book b inner join author a on a.Author_ID = b.Author_ID inner join bookcopies bc on b.ISBN_No = bc.ISBN_No where b.ISBN_No like '%600%' OR b.genre like '%600%' OR a.Author_Name like '%600%';
     @SuppressWarnings("unchecked")
@@ -175,13 +192,13 @@ private void searchTable(String searchQuery) {
         rSTableMetro1.setForeground(new java.awt.Color(0, 0, 0));
         rSTableMetro1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Accession No", "Genre", "ISBN No", "Book Title", "Author", "Availability"
+                "Genre", "ISBN No", "Book Title", "Author", "Availability"
             }
         ));
         rSTableMetro1.setColorBackgoundHead(new java.awt.Color(51, 102, 0));

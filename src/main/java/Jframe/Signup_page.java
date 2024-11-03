@@ -42,7 +42,7 @@ public class Signup_page extends javax.swing.JFrame {
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Account Creation Failed");
+            JOptionPane.showMessageDialog(this, "Account Creation Failed,This account is already exists");
         }
 
     }
@@ -253,6 +253,8 @@ public class Signup_page extends javax.swing.JFrame {
         jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 120, -1, -1));
 
         txt_Mobileno.setBackground(new java.awt.Color(51, 102, 0));
+        txt_Mobileno.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        txt_Mobileno.setForeground(new java.awt.Color(255, 255, 255));
         txt_Mobileno.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(153, 153, 153)));
         txt_Mobileno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -283,6 +285,8 @@ public class Signup_page extends javax.swing.JFrame {
         jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 160, 30));
 
         txt_Email.setBackground(new java.awt.Color(51, 102, 0));
+        txt_Email.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        txt_Email.setForeground(new java.awt.Color(255, 255, 255));
         txt_Email.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(153, 153, 153)));
         txt_Email.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -373,7 +377,6 @@ public class Signup_page extends javax.swing.JFrame {
         jPanel3.add(txt_Username1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 300, 370, 30));
 
         jPasswordField1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jPasswordField1.setText("jPasswordField1");
         jPanel3.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 400, 300, 40));
 
         show.setBackground(new java.awt.Color(0, 0, 0));

@@ -26,10 +26,12 @@ import javax.swing.SpinnerNumberModel;
 public class HandlMembers extends javax.swing.JFrame {
 
     private SimpleDateFormat dateFormat;
-    
- private JInternalFrame internalFrame;//internal frae initializing
- private JInternalFrame internalFrame2Child;//for child one
- 
+    NewJInternalFrame f1 = new  NewJInternalFrame();
+    childframe f2 = new  childframe();
+
+    private JInternalFrame internalFrame;//internal frae initializing
+    private JInternalFrame internalFrame2Child;//for child one
+
     public HandlMembers() {
         initComponents();
 
@@ -37,22 +39,23 @@ public class HandlMembers extends javax.swing.JFrame {
         setNextMemberId();
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        
-    }
-    // Method to call the internal frame method
-    private void callInternalFrameMethod() {
-        if (internalFrame instanceof NewJInternalFrame) {
-            ((NewJInternalFrame) internalFrame).insertAdultMemberData();
-        }
-        
+
     }
 
-    private void callInternalFrameMethod2() {
-        if (internalFrame instanceof childframe ) {
-            ((childframe ) internalFrame).insertChildMemberData() ;
-        }
-        
-    }
+    // Method to call the internal frame method
+//    private void callInternalFrameMethod() {
+//        if (internalFrame instanceof NewJInternalFrame) {
+//            ((NewJInternalFrame) internalFrame).insertAdultMemberData();
+//        }
+//
+//    }
+//
+//    private void callInternalFrameMethod2() {
+//        if (internalFrame instanceof childframe) {
+//            ((childframe) internalFrame).insertChildMemberData();
+//        }
+//
+//    }
 
     private int getNextMemberId() {
         int nextMemberId = 1; // Default value if no suppliers exist
@@ -72,142 +75,141 @@ public class HandlMembers extends javax.swing.JFrame {
 
     private void setNextMemberId() {
         int nextMemberId = getNextMemberId();
-       mRegistrationNo.setText(String.valueOf(nextMemberId)); 
+        mRegistrationNo.setText(String.valueOf(nextMemberId));
     }
 
-   public void insertMemberData() {
-    try (Connection conn = new Helper.DatabaseConnection().connection();) {
-        String mname = Mnamebox.getText();
-        String maddress = addressbox.getText();
-        String reservedSec = (String) typecombobox.getSelectedItem();
+    public void insertMemberData() {
+        try ( Connection conn = new Helper.DatabaseConnection().connection();) {
+            String mname = Mnamebox.getText();
+            String maddress = addressbox.getText();
+            String reservedSec = (String) typecombobox.getSelectedItem();
 
-        // Retrieve birthdate as java.util.Date
-        Date birthdateText = birthdate.getDatoFecha(); 
-        
-        // Check if birthdateText is null
-        if (birthdateText == null) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid birthdate.", "Error", JOptionPane.ERROR_MESSAGE);
-            return; // Exit method on error
-        }
+            // Retrieve birthdate as java.util.Date
+            Date birthdateText = birthdate.getDatoFecha();
 
-        // Convert birthdate to LocalDate
-        LocalDate mbirthdate = new java.sql.Date(birthdateText.getTime()).toLocalDate();
-
-        // Retrieve registration date from the JTextField as String
-        String regDateText = regDate1.getText();
-        LocalDate mRegisDate;
-        try {
-            mRegisDate = LocalDate.parse(regDateText, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } catch (DateTimeParseException e) {
-            JOptionPane.showMessageDialog(this, "Invalid registration date format. Please use yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
-            return; // Exit method on error
-        }
-
-        // Calculate the membership end date by adding one year
-        LocalDate membershipEndDate = mRegisDate.plusYears(1);
-
-        // Get additional data from the frames
-        String hContact = homecontactbox.getText();
-        int amount;
-        try {
-            String issueBookAmount = bookamountbox.getText().trim();
-            amount = Integer.parseInt(issueBookAmount);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid number for issued book amount.", "Error", JOptionPane.ERROR_MESSAGE);
-            return; // Exit method on error
-        }
-
-        String mOfficialNo = "", mMobile = "", nic = "", occupation = "";
-  if ("Child".equals(reservedSec)) {
-    if (f2 != null) {
-        mOfficialNo = f2.getMobilecontactbox().getText();
-        mMobile = f2.getOfficecontactbox1().getText();
-        nic = f2.getNicNo().getText();
-        occupation = f2.getOccupation1().getText();
-    }
-} else {
-    if (f1 != null) {
-        mOfficialNo = f1.getMobilecontactbox().getText();
-        mMobile = f1.getOfficecontactbox1().getText();
-        nic = f1.getNicNo().getText();
-        occupation = f1.getOccupation1().getText();
-    }
-}
-
-
-        // Certifier and guarantor fields
-        String cFullName = cFullnamebox.getText();
-        String cDesignation = cDesignationbox.getText();
-        String caddress = cAddressbox.getText();
-        String gcontactNo = gContactNo.getText();
-        String gFullname = gnamebox.getText();
-        String gOccupation = goccupationbox.getText();
-        String gNIC = gnicbox.getText();
-        String gAddress = gaddresbox.getText();
-
-        // Check if the member type is the one that should skip certain fields
-        boolean isSpecialMember = "Security Deposit holder".equals(reservedSec);
-
-        // Validate common details
-        if (mname.isEmpty() || maddress.isEmpty() || mbirthdate == null || hContact.isEmpty() || issueBookAmount.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
-            return;
-        }
-
-        // Validate that special members do not fill certifier and guarantor fields
-        if (isSpecialMember && (!cFullName.isEmpty() || !cDesignation.isEmpty() || !caddress.isEmpty() ||
-            !gFullname.isEmpty() || !gOccupation.isEmpty() || !gNIC.isEmpty() || !gAddress.isEmpty())) {
-            JOptionPane.showMessageDialog(this, "Security deposit holder does not require certifier and guarantor information.");
-            return;
-        }
-
-        // Prepare SQL query based on member type
-        String sql;
-        if (isSpecialMember) {
-            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date, B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        } else {
-            sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date, B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation, certifier_Name, certifier_Address, certifier_desigation, G_fullname, G_NIC_No, G_contactNo, G_occupation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        }
-
-        // Execute the SQL statement
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, mname);
-            pst.setString(2, maddress);
-            pst.setDate(3, java.sql.Date.valueOf(mbirthdate)); // Set birthdate
-            pst.setString(4, hContact);
-            pst.setInt(5, amount);
-            pst.setString(6, reservedSec);
-            pst.setDate(7, java.sql.Date.valueOf(mRegisDate)); // Set registration date
-            pst.setDate(8, java.sql.Date.valueOf(membershipEndDate)); // Set membership end date
-            pst.setString(9, mOfficialNo);
-            pst.setString(10, mMobile);
-            pst.setString(11, nic);
-            pst.setString(12, occupation);
-
-            if (!isSpecialMember) {
-                pst.setString(13, cFullName);
-                pst.setString(14, caddress);
-                pst.setString(15, cDesignation);
-                pst.setString(16, gFullname);
-                pst.setString(17, gOccupation);
-                pst.setString(18, gNIC);
-                pst.setString(19, gcontactNo);
+            // Check if birthdateText is null
+            if (birthdateText == null) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid birthdate.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit method on error
             }
 
-            pst.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Member registration is successful");
+            // Convert birthdate to LocalDate
+            LocalDate mbirthdate = new java.sql.Date(birthdateText.getTime()).toLocalDate();
+
+            // Retrieve registration date from the JTextField as String
+            String regDateText = regDate1.getText();
+            LocalDate mRegisDate;
+            try {
+                mRegisDate = LocalDate.parse(regDateText, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e) {
+                JOptionPane.showMessageDialog(this, "Invalid registration date format. Please use yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit method on error
+            }
+
+            // Calculate the membership end date by adding one year
+            LocalDate membershipEndDate = mRegisDate.plusYears(1);
+
+            // Get additional data from the frames
+            String hContact = homecontactbox.getText();
+            int amount;
+            String issueBookAmount;
+            try {
+                
+               issueBookAmount = bookamountbox.getText().trim();
+                amount = Integer.parseInt(issueBookAmount);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid number for issued book amount.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit method on error
+            }
+
+            String mOfficialNo = "", mMobile = "", nic = "", occupation = "";
+            if ("Child".equals(reservedSec)) {
+                if (f2 != null) {
+//                    mOfficialNo = f2.getMobilecontactbox().getText();
+//                    mMobile = f2.getOfficecontactbox1().getText();
+//                    nic = f2.getNicNo().getText();
+                    occupation = f2.getSchoolbox1().getText();
+                }
+            } else {
+                if (f1 != null) {
+                    mOfficialNo = f1.getMobilecontactbox().getText();
+                    mMobile = f1.getOfficecontactbox1().getText();
+                    nic = f1.getNicNo().getText();
+                    occupation = f1.getOccupation1().getText();
+                }
+            }
+
+            // Certifier and guarantor fields
+            String cFullName = cFullnamebox.getText();
+            String cDesignation = cDesignationbox.getText();
+            String caddress = cAddressbox.getText();
+            String gcontactNo = gContactNo.getText();
+            String gFullname = gnamebox.getText();
+            String gOccupation = goccupationbox.getText();
+            String gNIC = gnicbox.getText();
+            String gAddress = gaddresbox.getText();
+
+            // Check if the member type is the one that should skip certain fields
+            boolean isSpecialMember = "Security Deposit holder".equals(reservedSec);
+
+            // Validate common details
+            if (mname.isEmpty() || maddress.isEmpty() || mbirthdate == null || hContact.isEmpty() || issueBookAmount.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
+                return;
+            }
+
+            // Validate that special members do not fill certifier and guarantor fields
+            if (isSpecialMember && (!cFullName.isEmpty() || !cDesignation.isEmpty() || !caddress.isEmpty()
+                    || !gFullname.isEmpty() || !gOccupation.isEmpty() || !gNIC.isEmpty() || !gAddress.isEmpty())) {
+                JOptionPane.showMessageDialog(this, "Security deposit holder does not require certifier and guarantor information.");
+                return;
+            }
+
+            // Prepare SQL query based on member type
+            String sql;
+            if (isSpecialMember) {
+                sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date, B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            } else {
+                sql = "INSERT INTO borrower(B_Name, B_Address, B_DOB, B_HomeContactNo, no_of_Books_issue, B_type, m_RegistrationDate, membership_end_date, B_MobileContactNo, B_OfficialContactNo, B_nicNo, B_occupation, certifier_Name, certifier_Address, certifier_desigation, G_fullname, G_NIC_No, G_contactNo, G_occupation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            }
+
+            // Execute the SQL statement
+            try ( PreparedStatement pst = conn.prepareStatement(sql)) {
+                pst.setString(1, mname);
+                pst.setString(2, maddress);
+                pst.setDate(3, java.sql.Date.valueOf(mbirthdate)); // Set birthdate
+                pst.setString(4, hContact);
+                pst.setInt(5, amount);
+                pst.setString(6, reservedSec);
+                pst.setDate(7, java.sql.Date.valueOf(mRegisDate)); // Set registration date
+                pst.setDate(8, java.sql.Date.valueOf(membershipEndDate)); // Set membership end date
+                pst.setString(9, mOfficialNo);
+                pst.setString(10, mMobile);
+                pst.setString(11, nic);
+                pst.setString(12, occupation);
+
+                if (!isSpecialMember) {
+                    pst.setString(13, cFullName);
+                    pst.setString(14, caddress);
+                    pst.setString(15, cDesignation);
+                    pst.setString(16, gFullname);
+                    pst.setString(17, gOccupation);
+                    pst.setString(18, gNIC);
+                    pst.setString(19, gcontactNo);
+                }
+
+                pst.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Member registration is successful");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to insert member data");
         }
+    }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Failed to insert member data");
-    } 
-}
-
-
-
-  //child application filling
-  /*
+    //child application filling
+    /*
   private void insertChildMemberData() {
     try (Connection conn = new Helper.DatabaseConnection().connection();) {
         String cmname = Mcnamebox1.getText();
@@ -298,27 +300,26 @@ public class HandlMembers extends javax.swing.JFrame {
         Logger.getLogger(HandlMembers.class.getName()).log(Level.SEVERE, null, ex);
     }
 }*/
-private void clearFields() {
-    Mnamebox.setText("");
-    addressbox.setText("");
-    typecombobox.setSelectedIndex(0);
-    birthdate.setDatoFecha(null);
-    regDate1.setText("");
-    bookamountbox.setText("");
-    homecontactbox.setText("");
+    private void clearFields() {
+        Mnamebox.setText("");
+        addressbox.setText("");
+        typecombobox.setSelectedIndex(0);
+        birthdate.setDatoFecha(null);
+        regDate1.setText("");
+        bookamountbox.setText("");
+        homecontactbox.setText("");
 //    mobilecontactbox.setText("");
-  //  officecontactbox.setText("");
-  //  moccupationbox.setText("");
-    cFullnamebox.setText("");
-    cDesignationbox.setText("");
-    cAddressbox.setText("");
-    gContactNo.setText("");
-    gnamebox.setText("");
-    goccupationbox.setText("");
-    gnicbox.setText("");
-    gaddresbox.setText("");
-}
-
+        //  officecontactbox.setText("");
+        //  moccupationbox.setText("");
+        cFullnamebox.setText("");
+        cDesignationbox.setText("");
+        cAddressbox.setText("");
+        gContactNo.setText("");
+        gnamebox.setText("");
+        goccupationbox.setText("");
+        gnicbox.setText("");
+        gaddresbox.setText("");
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -406,6 +407,9 @@ private void clearFields() {
         jLabel7 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1261,7 +1265,7 @@ private void clearFields() {
         jPanel9.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 630, 140, -1));
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/Free_Vector___Documents_concept_illustration-removebg-preview.png"))); // NOI18N
-        jPanel9.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 220, 280, 380));
+        jPanel9.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 250, 280, 380));
 
         jLabel19.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(255, 255, 255));
@@ -1284,6 +1288,32 @@ private void clearFields() {
         jLabel8.setForeground(new java.awt.Color(255, 153, 51));
         jLabel8.setText("jLabel7");
         jPanel9.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 65, 60, 40));
+
+        jButton1.setBackground(new java.awt.Color(153, 0, 0));
+        jButton1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton1.setText("Bill");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel9.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 220, 110, -1));
+
+        jLabel9.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 153, 51));
+        jLabel9.setText("Membership Registration  Fees Handling");
+        jPanel9.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, -1, -1));
+
+        jButton2.setBackground(new java.awt.Color(51, 102, 0));
+        jButton2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Payment");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel9.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, -1, -1));
 
         getContentPane().add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 90, 1620, 700));
 
@@ -1355,18 +1385,17 @@ private void clearFields() {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         insertMemberData();
-        callInternalFrameMethod();
-        callInternalFrameMethod2();
+//        callInternalFrameMethod();
+//        callInternalFrameMethod2();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void typecomboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_typecomboboxActionPerformed
-      
 
- // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_typecomboboxActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-clearFields();       // TODO add your handling code here:
+        clearFields();       // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jTabbedPane1ComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_jTabbedPane1ComponentAdded
@@ -1412,6 +1441,47 @@ clearFields();       // TODO add your handling code here:
     private void typecomboboxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_typecomboboxMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_typecomboboxMouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+ Sachi.staff.Payments.Ui.memberfees mf=new Sachi.staff.Payments.Ui.memberfees();
+       mf.show();
+                // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+       
+                // Get the selected item from the combo box
+                String selectedItem = (String) typecombobox.getSelectedItem();
+
+                // Check if an item is selected and proceed accordingly
+                if (selectedItem != null) {
+                    switch (selectedItem) {
+                        case "Security Deposit holder":
+                            // Open the Security_deposit interface
+                            Sachi.staff.Payments.Ui.Security_deposit sec = new Sachi.staff.Payments.Ui.Security_deposit();
+                            sec.show();
+                            // Close the current frame
+                            break;
+//                        case "Adult":
+//                            // Open the memberfees interface
+//                            Sachi.staff.Payments.Ui.memberfees mf = new Sachi.staff.Payments.Ui.memberfees();
+//                            mf.show();
+//                             // Close the current frame
+//                            break;
+//                            case "child":
+//                            // Open the memberfees interface
+//                            Sachi.staff.Payments.Ui.memberfees mf = new Sachi.staff.Payments.Ui.memberfees();
+//                            mf.show();
+                        default:
+                            // If "Select Member Type" or any other item is selected, show an error message
+                            Sachi.staff.Payments.Ui.memberfees mf = new Sachi.staff.Payments.Ui.memberfees();
+                   mf.show();
+                            //JOptionPane.showMessageDialog(this, "Please select a valid member type.");
+                            break;
+                    }
+                }
+            
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1462,6 +1532,8 @@ clearFields();       // TODO add your handling code here:
     private javax.swing.JTextField gnicbox;
     private javax.swing.JTextField goccupationbox;
     private javax.swing.JTextField homecontactbox;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
@@ -1510,6 +1582,7 @@ clearFields();       // TODO add your handling code here:
     private javax.swing.JLabel jLabel81;
     private javax.swing.JLabel jLabel86;
     private javax.swing.JLabel jLabel89;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabel91;
     private javax.swing.JLabel jLabel92;
     private javax.swing.JLayeredPane jLayeredPane1;

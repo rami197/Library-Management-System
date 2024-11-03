@@ -202,6 +202,7 @@ public class Edit_supplier extends javax.swing.JFrame {
 
         searchButton.setBackground(new java.awt.Color(0, 0, 0));
         searchButton.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        searchButton.setForeground(new java.awt.Color(255, 255, 255));
         searchButton.setText("Search by Registration No,Name");
         searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {

@@ -4,6 +4,7 @@
  */
 package Reports;
 
+import java.awt.BorderLayout;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,9 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.swing.JRViewer;
 import net.sf.jasperreports.view.JasperViewer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -238,6 +243,7 @@ public class PdfReportWithCalendar {
         }
     }
 */
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -246,23 +252,18 @@ public class PdfReportWithCalendar {
         jPanel4 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         rSButtonHover6 = new rojeru_san.complementos.RSButtonHover();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel11 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox<>();
-        rSButtonHover4 = new rojeru_san.complementos.RSButtonHover();
         jPanel8 = new javax.swing.JPanel();
-        jLabel15 = new javax.swing.JLabel();
         jComboBox3 = new javax.swing.JComboBox<>();
         rSButtonHover7 = new rojeru_san.complementos.RSButtonHover();
+        birthdate6 = new rojeru_san.componentes.RSDateChooser();
+        birthdate7 = new rojeru_san.componentes.RSDateChooser();
         jPanel10 = new javax.swing.JPanel();
-        jLabel16 = new javax.swing.JLabel();
         jComboBox4 = new javax.swing.JComboBox<>();
-        rSButtonHover3 = new rojeru_san.complementos.RSButtonHover();
-        jPanel6 = new javax.swing.JPanel();
-        jLabel12 = new javax.swing.JLabel();
-        jComboBox6 = new javax.swing.JComboBox<>();
-        rSButtonHover5 = new rojeru_san.complementos.RSButtonHover();
+        rSButtonHover10 = new rojeru_san.complementos.RSButtonHover();
         jLabel1 = new javax.swing.JLabel();
+        jPanel11 = new javax.swing.JPanel();
+        jComboBox5 = new javax.swing.JComboBox<>();
+        rSButtonHover11 = new rojeru_san.complementos.RSButtonHover();
         jPanel18 = new javax.swing.JPanel();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
@@ -304,10 +305,10 @@ public class PdfReportWithCalendar {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 218, Short.MAX_VALUE)
-                .addComponent(rSButtonHover6, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addComponent(rSButtonHover6, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -316,75 +317,13 @@ public class PdfReportWithCalendar {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(rSButtonHover6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addGap(0, 75, Short.MAX_VALUE))
         );
 
-        jPanel9.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, 513, 80));
-
-        jPanel5.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel5.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
-
-        jLabel11.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel11.setText(" Donater");
-        jLabel11.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 1, 1, 1, new java.awt.Color(204, 255, 204)));
-
-        jComboBox5.setBackground(new java.awt.Color(0, 0, 0));
-        jComboBox5.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jComboBox5.setForeground(new java.awt.Color(255, 255, 255));
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Donor Details  Report", " ", " " }));
-        jComboBox5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox5ActionPerformed(evt);
-            }
-        });
-
-        rSButtonHover4.setBackground(new java.awt.Color(51, 102, 0));
-        rSButtonHover4.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        rSButtonHover4.setText("Generate");
-        rSButtonHover4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rSButtonHover4ActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rSButtonHover4, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(40, Short.MAX_VALUE))
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(jLabel11))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(rSButtonHover4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(24, Short.MAX_VALUE))
-        );
-
-        jPanel9.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, -1, -1));
+        jPanel9.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 30, 380, 140));
 
         jPanel8.setBackground(new java.awt.Color(0, 0, 0));
         jPanel8.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
-
-        jLabel15.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel15.setText(" Books");
-        jLabel15.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 1, 1, 1, new java.awt.Color(204, 255, 204)));
 
         jComboBox3.setBackground(new java.awt.Color(0, 0, 0));
         jComboBox3.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
@@ -400,39 +339,56 @@ public class PdfReportWithCalendar {
             }
         });
 
+        birthdate6.setBackground(new java.awt.Color(0, 102, 0));
+        birthdate6.setForeground(new java.awt.Color(0, 0, 0));
+        birthdate6.setColorBackground(new java.awt.Color(51, 102, 0));
+        birthdate6.setColorButtonHover(new java.awt.Color(204, 255, 204));
+        birthdate6.setColorForeground(new java.awt.Color(0, 0, 0));
+        birthdate6.setPlaceholder("Select date\n\n");
+
+        birthdate7.setBackground(new java.awt.Color(0, 102, 0));
+        birthdate7.setForeground(new java.awt.Color(0, 0, 0));
+        birthdate7.setColorBackground(new java.awt.Color(51, 102, 0));
+        birthdate7.setColorButtonHover(new java.awt.Color(204, 255, 204));
+        birthdate7.setColorForeground(new java.awt.Color(0, 0, 0));
+        birthdate7.setPlaceholder("Select date\n\n");
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(rSButtonHover7, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(141, Short.MAX_VALUE))
+                .addGap(25, 25, 25)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(birthdate7, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(54, 54, 54)
+                        .addComponent(birthdate6, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(78, 78, 78)
+                        .addComponent(rSButtonHover7, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel15)
                     .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(rSButtonHover7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(birthdate7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(birthdate6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22))
         );
 
-        jPanel9.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, -1, 80));
+        jPanel9.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 30, 370, 140));
 
         jPanel10.setBackground(new java.awt.Color(0, 0, 0));
         jPanel10.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
-
-        jLabel16.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel16.setText("Supplier ");
-        jLabel16.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 1, 1, 1, new java.awt.Color(204, 255, 204)));
 
         jComboBox4.setBackground(new java.awt.Color(0, 0, 0));
         jComboBox4.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
@@ -444,12 +400,12 @@ public class PdfReportWithCalendar {
             }
         });
 
-        rSButtonHover3.setBackground(new java.awt.Color(51, 102, 0));
-        rSButtonHover3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        rSButtonHover3.setText("Generate");
-        rSButtonHover3.addActionListener(new java.awt.event.ActionListener() {
+        rSButtonHover10.setBackground(new java.awt.Color(51, 102, 0));
+        rSButtonHover10.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        rSButtonHover10.setText("Generate");
+        rSButtonHover10.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rSButtonHover3ActionPerformed(evt);
+                rSButtonHover10ActionPerformed(evt);
             }
         });
 
@@ -458,88 +414,73 @@ public class PdfReportWithCalendar {
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(27, 27, 27)
                 .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
-                .addComponent(rSButtonHover3, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(38, 38, 38))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(rSButtonHover10, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(16, 16, 16)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel16)
                     .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rSButtonHover3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(24, Short.MAX_VALUE))
+                    .addComponent(rSButtonHover10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
-        jPanel9.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 40, 482, 80));
-
-        jPanel6.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel6.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
-
-        jLabel12.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText(" Donater");
-        jLabel12.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 1, 1, 1, new java.awt.Color(204, 255, 204)));
-
-        jComboBox6.setBackground(new java.awt.Color(0, 0, 0));
-        jComboBox6.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jComboBox6.setForeground(new java.awt.Color(255, 255, 255));
-        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Donated Book Report", " ", " ", " " }));
-        jComboBox6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox6ActionPerformed(evt);
-            }
-        });
-
-        rSButtonHover5.setBackground(new java.awt.Color(51, 102, 0));
-        rSButtonHover5.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        rSButtonHover5.setText("Generate");
-        rSButtonHover5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rSButtonHover5ActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rSButtonHover5, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(40, Short.MAX_VALUE))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(jLabel12))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(rSButtonHover5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(30, Short.MAX_VALUE))
-        );
-
-        jPanel9.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 280, 513, -1));
+        jPanel9.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 210, 370, 120));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/Free_Vector___Documents_concept_illustration-removebg-preview.png"))); // NOI18N
-        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 260, 320, 180));
+        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 200, 230, 180));
 
-        getContentPane().add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 98, 1190, 455));
+        jPanel11.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel11.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
+
+        jComboBox5.setBackground(new java.awt.Color(0, 0, 0));
+        jComboBox5.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jComboBox5.setForeground(new java.awt.Color(255, 255, 255));
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Donor details Report", " ", " " }));
+        jComboBox5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox5ActionPerformed(evt);
+            }
+        });
+
+        rSButtonHover11.setBackground(new java.awt.Color(51, 102, 0));
+        rSButtonHover11.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        rSButtonHover11.setText("Generate");
+        rSButtonHover11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rSButtonHover11ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addComponent(rSButtonHover11, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rSButtonHover11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(60, Short.MAX_VALUE))
+        );
+
+        jPanel9.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 210, 380, 120));
+
+        getContentPane().add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 98, 1360, 590));
 
         jPanel18.setBackground(new java.awt.Color(51, 102, 0));
         jPanel18.setForeground(new java.awt.Color(0, 0, 0));
@@ -595,25 +536,10 @@ public class PdfReportWithCalendar {
         });
         jPanel18.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(434, 32, 145, -1));
 
-        getContentPane().add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1190, 92));
+        getContentPane().add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1350, 92));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void rSButtonHover4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover4ActionPerformed
-//C:\Users\USER\Documents\Reports        // TODO add your handling code here:
-try(Connection connection = new Helper.DatabaseConnection().connection()){
-              String reportpath= "C:\\Users\\USER\\Documents\\Reports\\donorde.jrxml";
-              JasperReport jr = JasperCompileManager.compileReport(reportpath);
-              JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
-              JasperViewer.viewReport(jp);
-              connection.close();
-          }catch(Exception e){
-          JOptionPane.showMessageDialog(rootPane, e);
-          }     
-
-
-    }//GEN-LAST:event_rSButtonHover4ActionPerformed
 
     private void rSButtonHover6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover6ActionPerformed
 //Date fromDate = jDateChooser2.getDate();
@@ -631,23 +557,12 @@ try(Connection connection = new Helper.DatabaseConnection().connection()){
               JasperReport jr = JasperCompileManager.compileReport(reportpath);
               JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
               JasperViewer.viewReport(jp);
+             
               connection.close();
           }catch(Exception e){
           JOptionPane.showMessageDialog(rootPane, e);
           }             // TODO add your handling code here:
     }//GEN-LAST:event_rSButtonHover6ActionPerformed
-
-    private void rSButtonHover7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover7ActionPerformed
-try(Connection connection = new Helper.DatabaseConnection().connection()){
-              String reportpath= "C:\\Users\\USER\\Documents\\Reports\\book.jrxml";
-              JasperReport jr = JasperCompileManager.compileReport(reportpath);
-              JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
-              JasperViewer.viewReport(jp);
-              connection.close();
-          }catch(Exception e){
-          JOptionPane.showMessageDialog(rootPane, e);
-          }             // TODO add your handling code here:
-    }//GEN-LAST:event_rSButtonHover7ActionPerformed
 
     private void jLabel26MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel26MouseClicked
         Sachi_Ui_Admin.Librarian_home_pg homeback= new Sachi_Ui_Admin.Librarian_home_pg();
@@ -667,33 +582,90 @@ Sachi_Ui_Admin.Librarian_home_pg homeback= new Sachi_Ui_Admin.Librarian_home_pg(
         dispose();          // TODO add your handling code here:
     }//GEN-LAST:event_jLabel33MouseClicked
 
-    private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
+    private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox5ActionPerformed
+    }//GEN-LAST:event_jComboBox4ActionPerformed
 
-    private void jComboBox6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox6ActionPerformed
+    private void rSButtonHover7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover7ActionPerformed
+Date fromDate = birthdate7.getDatoFecha();
+Date toDate = birthdate6.getDatoFecha();
 
-    private void rSButtonHover5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover5ActionPerformed
+// Create a HashMap and put the date objects
+HashMap<String, Object> parameters = new HashMap<>();
+parameters.put("fDate", fromDate);
+parameters.put("endDate", toDate);
+
+try (Connection connection = new Helper.DatabaseConnection().connection()) {
+    // Load the JRXML design
+    JasperDesign jdesign = JRXmlLoader.load("C:\\Users\\USER\\Documents\\Reports\\book.jrxml");
+    
+    // Compile the report
+    JasperReport jreport = JasperCompileManager.compileReport(jdesign);
+    
+    // Fill the report with parameters and the database connection
+    JasperPrint jprint = JasperFillManager.fillReport(jreport, parameters, connection);
+    
+    // Display the report using JasperViewer
+    JasperViewer.viewReport(jprint, false);  // Set to 'false' to not exit application on close
+    
+    // Optional: Export the report to a PDF file
+    String outputFilePath = "C:\\Users\\USER\\Documents\\Reports\\book.pdf";
+    JasperExportManager.exportReportToPdfFile(jprint, outputFilePath);
+    
+    System.out.println("Report saved as PDF at: " + outputFilePath);
+
+} catch (Exception ex) {
+    ex.printStackTrace();
+}
+
+
+
+
+
+
+//        Date fromDate = birthdate7.getDatoFecha();
+//        Date toDate = birthdate6.getDatoFecha();
+//
+//        // Create a HashMap and put the date objects
+//        HashMap<String, Object> parameters = new HashMap<>();
+//        parameters.put("fDate", fromDate);
+//        parameters.put("endDate", toDate);
+//
+//        jPanel1.removeAll();
+//        jPanel1.repaint();
+//        jPanel1.revalidate();
+//
+//        try (Connection connection = new Helper.DatabaseConnection().connection()){
+//            JasperDesign jdesign = JRXmlLoader.load("C:\\Users\\USER\\JaspersoftWorkspace\\MyReportsbook.jrxml");
+//            JasperReport jreport = JasperCompileManager.compileReport(jdesign);
+//            JasperPrint jprint = JasperFillManager.fillReport(jreport, parameters, connection);
+//
+//            JRViewer viewer = new JRViewer(jprint);
+//            jPanel1.setLayout(new BorderLayout());
+//            jPanel1.add(viewer, BorderLayout.CENTER);
+//
+//            String outputFilePath = "C:\\Users\\USER\\Documents\\Reports\\book.jrxml";
+//            JasperExportManager.exportReportToPdfFile(jprint, outputFilePath);
+//
+//            System.out.println("Report saved as PDF at: " + outputFilePath);
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+
+        //try(Connection connection = new Helper.DatabaseConnection().connection()){
+            //              String reportpath= "C:\\Users\\USER\\Documents\\Reports\\book.jrxml";
+            //              JasperReport jr = JasperCompileManager.compileReport(reportpath);
+            //              JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
+            //              JasperViewer.viewReport(jp);
+            //              connection.close();
+            //          }catch(Exception e){
+            //          JOptionPane.showMessageDialog(rootPane, e);
+            //          }             // TODO add your handling code here:
+    }//GEN-LAST:event_rSButtonHover7ActionPerformed
+
+    private void rSButtonHover10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover10ActionPerformed
 try(Connection connection = new Helper.DatabaseConnection().connection()){
-              String reportpath= "C:\\Users\\USER\\Documents\\Reports\\donatedbooks.jrxml";
-              JasperReport jr = JasperCompileManager.compileReport(reportpath);
-              JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
-              JasperViewer.viewReport(jp);
-              connection.close();
-          }catch(Exception e){
-          JOptionPane.showMessageDialog(rootPane, e);
-          }          // TODO add your handling code here:
-    }//GEN-LAST:event_rSButtonHover5ActionPerformed
-
-    private void rSButtonHover3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover3ActionPerformed
-        //List<String[]> data = Reports_Admin.fetchData();
-        // Generate the PDF
-        // Reports_Admin.generatePDF(data, "report.pdf");
-        // Notify the user
-        // JOptionPane.showMessageDialog(null, "PDF Report Generated!");//LoadReport();
-        try(Connection connection = new Helper.DatabaseConnection().connection()){
             String reportpath= "C:\\Users\\USER\\Documents\\Reports\\supplierdetails1.jrxml";
             JasperReport jr = JasperCompileManager.compileReport(reportpath);
             JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
@@ -701,13 +673,24 @@ try(Connection connection = new Helper.DatabaseConnection().connection()){
             connection.close();
         }catch(Exception e){
             JOptionPane.showMessageDialog(rootPane, e);
-        }
-        // TODO add your handling code here:
-    }//GEN-LAST:event_rSButtonHover3ActionPerformed
+        }         //         // TODO add your handling code here:
+    }//GEN-LAST:event_rSButtonHover10ActionPerformed
 
-    private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
+    private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox4ActionPerformed
+    }//GEN-LAST:event_jComboBox5ActionPerformed
+
+    private void rSButtonHover11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rSButtonHover11ActionPerformed
+try(Connection connection = new Helper.DatabaseConnection().connection()){
+            String reportpath= "C:\\Users\\USER\\Documents\\Reports\\donorde.jrxml";
+            JasperReport jr = JasperCompileManager.compileReport(reportpath);
+            JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
+            JasperViewer.viewReport(jp);
+            connection.close();
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(rootPane, e);
+        }         //        // TODO add your handling code here:
+    }//GEN-LAST:event_rSButtonHover11ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -808,16 +791,13 @@ try(Connection connection = new Helper.DatabaseConnection().connection()){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private rojeru_san.componentes.RSDateChooser birthdate6;
+    private rojeru_san.componentes.RSDateChooser birthdate7;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JComboBox<String> jComboBox5;
-    private javax.swing.JComboBox<String> jComboBox6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel28;
@@ -826,16 +806,14 @@ try(Connection connection = new Helper.DatabaseConnection().connection()){
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel33;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
+    private rojeru_san.complementos.RSButtonHover rSButtonHover10;
+    private rojeru_san.complementos.RSButtonHover rSButtonHover11;
     private rojeru_san.complementos.RSButtonHover rSButtonHover13;
-    private rojeru_san.complementos.RSButtonHover rSButtonHover3;
-    private rojeru_san.complementos.RSButtonHover rSButtonHover4;
-    private rojeru_san.complementos.RSButtonHover rSButtonHover5;
     private rojeru_san.complementos.RSButtonHover rSButtonHover6;
     private rojeru_san.complementos.RSButtonHover rSButtonHover7;
     // End of variables declaration//GEN-END:variables

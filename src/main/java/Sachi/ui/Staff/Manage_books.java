@@ -171,10 +171,10 @@ System.out.println(lastBookId+donatorId);
                     checkDonatorStmt.executeUpdate();;
  
                 }
-                JOptionPane.showMessageDialog(this, "Book details and acquisition method inserted successfully ");
+                JOptionPane.showMessageDialog(this, "Book details  inserted successfully ");
 
             } else {
-                JOptionPane.showMessageDialog(this, "Book details and acquisition method inserted Unsuccessfully ");
+                JOptionPane.showMessageDialog(this, "Book details  inserted Unsuccessfully ");
 
             }
         } catch (SQLException e) {
@@ -227,24 +227,47 @@ System.out.println(lastBookId+donatorId);
         }
 
     }
-
-    private void populateAuthorCombobox() {
-        authorCombobox.addItem("Please Select Author");
-        try ( Connection conn = new Helper.DatabaseConnection().connection();) {
-
-            String query = "SELECT Author_Name,Author_ID FROM author";
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs != null && rs.next()) {
-
-                String authorName = rs.getString("Author_Name");
-                String authorid = rs.getString("Author_ID");
-                authorCombobox.addItem(String.valueOf(authorid + " " + authorName));
-            }
-        } catch (SQLException e) {
-            System.out.println("Error fetching Authors: " + e.getMessage());
+//newly added
+   private void populateAuthorCombobox() {
+    // Clear the combo box before populating
+    authorCombobox.removeAllItems();
+    authorCombobox.addItem("Please Select Author");
+    
+    try (Connection conn = new Helper.DatabaseConnection().connection()) {
+        String query = "SELECT Author_Name, Author_ID FROM author";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        ResultSet rs = pstmt.executeQuery();
+        
+        // Check if result set is empty
+        if (!rs.isBeforeFirst()) { // If the result set is empty
+            System.out.println("No authors found.");
+            return; // No need to proceed further
         }
+        
+        while (rs != null && rs.next()) {
+            String authorName = rs.getString("Author_Name");
+            String authorId = rs.getString("Author_ID");
+            String authorInfo = authorId + " " + authorName;
+            
+            // Check if the author is already added
+            boolean authorExists = false;
+            for (int i = 0; i < authorCombobox.getItemCount(); i++) {
+                if (authorCombobox.getItemAt(i).equals(authorInfo)) {
+                    authorExists = true;
+                    break;
+                }
+            }
+            
+            // Only add the author if it's not already in the combo box
+            if (!authorExists) {
+                authorCombobox.addItem(authorInfo);
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Error fetching Authors: " + e.getMessage());
     }
+}
+
      private void setupAutoComplete(JComboBox<String> authorCombobox) {
         List<String> items = new ArrayList<>();
         for (int i = 0; i < authorCombobox.getItemCount(); i++) {
@@ -297,22 +320,46 @@ System.out.println(lastBookId+donatorId);
 
     }
 
-    private void populatePublisherCombobox() {
-        publishercombobox.addItem("Please Select Publisher");
-        try ( Connection conn = new Helper.DatabaseConnection().connection();) {
+   private void populatePublisherCombobox() {
+    // Clear the combo box before populating
+    publishercombobox.removeAllItems();
+    publishercombobox.addItem("Please Select Publisher");
 
-            String query = "SELECT Publisher_Name FROM publisher";
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs != null && rs.next()) {
+    try (Connection conn = new Helper.DatabaseConnection().connection()) {
+        // Modify the query to order by Publisher_Name alphabetically
+        String query = "SELECT Publisher_Name FROM publisher ORDER BY Publisher_Name ASC";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        ResultSet rs = pstmt.executeQuery();
 
-                String publisherName = rs.getString("Publisher_Name");
-                publishercombobox.addItem(String.valueOf(publisherName));
-            }
-        } catch (SQLException e) {
-            System.out.println("Error fetching Authors: " + e.getMessage());
+        // Check if result set is empty
+        if (!rs.isBeforeFirst()) { // If no publishers found
+            System.out.println("No publishers found.");
+            return; // Exit if there are no results
         }
+
+        while (rs != null && rs.next()) {
+            String publisherName = rs.getString("Publisher_Name");
+
+            // Check if publisher is already in the combo box to avoid duplicates
+            boolean publisherExists = false;
+            for (int i = 0; i < publishercombobox.getItemCount(); i++) {
+                if (publishercombobox.getItemAt(i).equals(publisherName)) {
+                    publisherExists = true;
+                    break;
+                }
+            }
+
+            // Add the publisher only if it doesn't already exist in the combo box
+            if (!publisherExists) {
+                publishercombobox.addItem(publisherName);
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Error fetching Publishers: " + e.getMessage());
     }
+}
+
+
 
     private void checkAvailability() {
     String isbn = getCompleteISBN(); // Use the method to get the full ISBN number

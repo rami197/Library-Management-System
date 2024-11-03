@@ -37,34 +37,43 @@ public class Return_Book extends javax.swing.JFrame {
      * @param memberId
      */
     public void updateTableData(String memberId) {
-        String query = "SELECT t.Accession_No, b.Title, DATEDIFF(CURRENT_DATE, t.Transaction_Date) AS Days_Difference "
-                + "FROM transactions t "
-                + "INNER JOIN bookcopies bc ON t.Accession_No = bc.Accession_No "
-                + "INNER JOIN book b ON b.ISBN_No = bc.ISBN_No "
-                + "WHERE t.B_Id = ?";
+    String query = "SELECT t.Accession_No, b.Title, " +
+                   "CASE " +
+                   "WHEN DATEDIFF(CURRENT_DATE, t.Transaction_Date) - 14 < 0 " +
+                   "THEN '0' " +
+                   "ELSE CAST(DATEDIFF(CURRENT_DATE, t.Transaction_Date) - 14 AS CHAR) " +
+                   "END AS Late_Days, " +
+                   "t.Transaction_Type " +
+                   "FROM transactions t " +
+                   "INNER JOIN bookcopies bc ON t.Accession_No = bc.Accession_No " +
+                   "INNER JOIN book b ON b.ISBN_No = bc.ISBN_No " +
+                   "WHERE t.B_Id = ? AND t.Transaction_Type IN ('loan', 'reissue')";
 
-        try ( Connection connection = new Helper.DatabaseConnection().connection();  PreparedStatement pstmt = connection.prepareStatement(query)) {
 
-            pstmt.setString(1, memberId);
+    try (Connection connection = new Helper.DatabaseConnection().connection();
+         PreparedStatement pstmt = connection.prepareStatement(query)) {
 
-            try ( ResultSet rs = pstmt.executeQuery()) {
+        pstmt.setString(1, memberId);
 
-                tableModel.setRowCount(0);
+        try (ResultSet rs = pstmt.executeQuery()) {
 
-                while (rs.next()) {
-                    String accessionNo = rs.getString("Accession_No");
-                    String bookName = rs.getString("Title");
-                    int daysDifference = rs.getInt("Days_Difference");
+            tableModel.setRowCount(0);
 
-                    tableModel.addRow(new Object[]{accessionNo, bookName, daysDifference});
-                }
+            while (rs.next()) {
+                String accessionNo = rs.getString("Accession_No");
+                String bookName = rs.getString("Title");
+                int lateDays = rs.getInt("Late_Days");
 
-                rSTableMetro1.setModel(tableModel);
+                tableModel.addRow(new Object[]{accessionNo, bookName, lateDays});
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            rSTableMetro1.setModel(tableModel);
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+}
+
    private void updateTransactionType(String accessionNo, String action) {
     if ("damaged_return".equalsIgnoreCase(action)) {
         recordDamagedReturn(accessionNo);
@@ -205,6 +214,8 @@ private void reissueTransaction(String accessionNo, String memberId) {
         rSButtonHover5 = new rojeru_san.complementos.RSButtonHover();
         jScrollPane2 = new javax.swing.JScrollPane();
         rSTableMetro1 = new rojeru_san.complementos.RSTableMetro();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jPanel17 = new javax.swing.JPanel();
         jPanel18 = new javax.swing.JPanel();
@@ -315,14 +326,30 @@ private void reissueTransaction(String accessionNo, String memberId) {
             }
         });
 
+        jButton2.setBackground(new java.awt.Color(51, 102, 0));
+        jButton2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Payment");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setBackground(new java.awt.Color(102, 102, 0));
+        jButton3.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton3.setForeground(new java.awt.Color(255, 255, 255));
+        jButton3.setText("Replacements");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 837, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(100, 100, 100))
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
@@ -336,6 +363,17 @@ private void reissueTransaction(String accessionNo, String memberId) {
                         .addGap(47, 47, 47)
                         .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, 513, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 837, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(100, 100, 100))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton3)
+                        .addGap(106, 106, 106))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -349,7 +387,11 @@ private void reissueTransaction(String accessionNo, String memberId) {
                 .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(440, 440, 440))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
+                .addGap(376, 376, 376))
         );
 
         jPanel18.setBackground(new java.awt.Color(51, 102, 0));
@@ -477,6 +519,21 @@ private void reissueTransaction(String accessionNo, String memberId) {
         // TODO add your handling code here:
     }//GEN-LAST:event_memberIdBoxActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+
+        Sachi.staff.Payments.Ui.fines_collecting fines= new Sachi.staff.Payments.Ui.fines_collecting();
+fines.show();
+
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    Sachi.staff.book.ui.Collect_replaceBook_copy repbook= new Sachi.staff.book.ui.Collect_replaceBook_copy();
+
+repbook.show();
+
+   // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -513,6 +570,8 @@ private void reissueTransaction(String accessionNo, String memberId) {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel28;

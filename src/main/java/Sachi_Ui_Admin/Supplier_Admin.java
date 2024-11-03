@@ -68,7 +68,7 @@ public class Supplier_Admin extends javax.swing.JFrame {
 
         jLabel15.setFont(new java.awt.Font("Calibri", 0, 24)); // NOI18N
         jLabel15.setText("Dunkannawa E- Library >>");
-        jPanel1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 70, 240, -1));
+        jPanel1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 70, 260, -1));
 
         jLabel16.setFont(new java.awt.Font("Dialog", 0, 20)); // NOI18N
         jLabel16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Adminuser.png"))); // NOI18N
@@ -88,7 +88,7 @@ public class Supplier_Admin extends javax.swing.JFrame {
             .addGap(0, 40, Short.MAX_VALUE)
         );
 
-        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 60, 10, 40));
+        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 60, 10, 40));
 
         jLabel12.setFont(new java.awt.Font("Calibri", 0, 24)); // NOI18N
         jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/adminIcons/home_24px.png"))); // NOI18N
@@ -109,7 +109,7 @@ public class Supplier_Admin extends javax.swing.JFrame {
                 jLabel1MouseClicked(evt);
             }
         });
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(532, 70, 240, -1));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 70, 240, -1));
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -321,10 +321,9 @@ public class Supplier_Admin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
-        Sachi_Ui_Admin.Librarian_home_pg hom =new Sachi_Ui_Admin.Librarian_home_pg();
-
-        hom.show();
-        dispose();        // TODO add your handling code here:
+         Sachi.ui.Staff.Home_pg_1 hm = new Sachi.ui.Staff.Home_pg_1();
+        hm.show();
+        dispose();       // TODO add your handling code here:
     }//GEN-LAST:event_jLabel12MouseClicked
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed

@@ -17,6 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -64,11 +69,11 @@ public class fines_collecting extends javax.swing.JFrame {
                     long lateDays = diffInMillis / (1000 * 60 * 60 * 24);
 
                     if (lateDays > 0) {
-                        jLabel19.setText(Long.toString(lateDays));
+                        date_fines.setText(Long.toString(lateDays));
                         // Calculate fine only if there are late days
                         calculateFine(memberId, (int) lateDays, conn);
                     } else {
-                        jLabel19.setText("No late days");
+                        date_fines.setText("No late days");
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Member not found");
@@ -154,7 +159,7 @@ private int[] parseRange(String description) {
  
 //record storing
 private void insertFineRecord(Connection conn, String memberId, int lateDays, double finalFineAmount) {
-    String sql = "INSERT INTO fines (fine_type_id, Accession_No, transaction_ID, Reason, Paid, Amount) VALUES (?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO fines (fine_type_id, Accession_No, transaction_ID, Reason, Paid, Amount, transaction_date) VALUES (?, ?, ?, ?, ?, ?, CURDATE())";
     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
         pstmt.setInt(1, getFineTypeId(conn, lateDays));
         pstmt.setInt(2, getAccessionNo(conn, memberId));
@@ -164,10 +169,16 @@ private void insertFineRecord(Connection conn, String memberId, int lateDays, do
         pstmt.setDouble(6, finalFineAmount);
         
         pstmt.executeUpdate();
+        date_fines.setText("");
+    jLabel17.setText("");
+    jLabel5.setText("");
+    jLabel10.setText("");
+    
     } catch (SQLException ex) {
         Logger.getLogger(Security_deposit.class.getName()).log(Level.SEVERE, "Failed to insert fine record", ex);
     }
 }
+
 
 private int getFineTypeId(Connection conn, int lateDays) throws SQLException {
     String sql = "SELECT fine_type_id, fine_type_description FROM fines_type";
@@ -454,7 +465,6 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jLabel11 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jLabel15 = new javax.swing.JLabel();
@@ -462,7 +472,10 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jPanel8 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        date_fines = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -526,10 +539,10 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Accession No ");
 
-        jButton1.setBackground(new java.awt.Color(153, 255, 0));
+        jButton1.setBackground(new java.awt.Color(255, 153, 0));
         jButton1.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Record ");
+        jButton1.setText("Pay");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -539,7 +552,7 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jButton3.setBackground(new java.awt.Color(0, 102, 102));
         jButton3.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Record ");
+        jButton3.setText("Pay");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
@@ -559,7 +572,7 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(memberfinesbox, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -567,11 +580,11 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(accessionNotext, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton1)))
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton3)
-                    .addComponent(rSButtonHover3, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(rSButtonHover3, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(87, 87, 87))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel3Layout.createSequentialGroup()
@@ -611,7 +624,7 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 430, 210, -1));
 
         jLabel5.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(0, 102, 102));
+        jLabel5.setForeground(new java.awt.Color(204, 0, 0));
         jLabel5.setText("Rs.");
         jLabel5.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 420, 250, 40));
@@ -641,15 +654,10 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 360, 190, -1));
 
         jLabel17.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel17.setForeground(new java.awt.Color(0, 102, 102));
+        jLabel17.setForeground(new java.awt.Color(255, 51, 0));
         jLabel17.setText("Book Name");
         jLabel17.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
         jPanel2.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 350, 167, 40));
-
-        jLabel19.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel19.setForeground(new java.awt.Color(153, 255, 0));
-        jLabel19.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
-        jPanel2.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 280, 170, 50));
 
         jPanel1.setBackground(new java.awt.Color(51, 102, 0));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -708,13 +716,38 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
         jLabel1.setText("Collect fines");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 60, 160, -1));
 
+        jLabel2.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Close.png"))); // NOI18N
+        jLabel2.setText("Close");
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 60, -1, -1));
+
         jPanel2.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 964, 90));
 
         jLabel10.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setForeground(new java.awt.Color(204, 0, 0));
         jLabel10.setToolTipText("Rs.");
         jLabel10.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
         jPanel2.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 490, 200, 50));
+
+        jButton2.setBackground(new java.awt.Color(153, 0, 0));
+        jButton2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton2.setText("Bill");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 550, 390, 40));
+
+        date_fines.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        date_fines.setForeground(new java.awt.Color(153, 255, 0));
+        date_fines.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
+        jPanel2.add(date_fines, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 290, 170, 38));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -743,7 +776,7 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
        String memberId = memberfinesbox.getText();
-        int lateDays = Integer.parseInt(jLabel19.getText());
+        int lateDays = Integer.parseInt(date_fines.getText());
         double finalFineAmount = Double.parseDouble(jLabel10.getText());
 
         try (Connection conn = new Helper.DatabaseConnection().connection()) {
@@ -810,6 +843,23 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
                 }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        dispose();        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try(Connection connection = new Helper.DatabaseConnection().connection()){
+              String reportpath= "C:\\Users\\USER\\Documents\\Reports\\invoice.jrxml";
+              JasperReport jr = JasperCompileManager.compileReport(reportpath);
+              JasperPrint jp =JasperFillManager.fillReport(jr, null,connection);
+              JasperViewer.viewReport(jp);
+              connection.close();
+          }catch(Exception e){
+          JOptionPane.showMessageDialog(rootPane, e);
+          }       
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -847,7 +897,9 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField accessionNotext;
+    private javax.swing.JLabel date_fines;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -858,7 +910,7 @@ private void insertDamagedBookFineRecord(Connection conn, String memberId, doubl
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

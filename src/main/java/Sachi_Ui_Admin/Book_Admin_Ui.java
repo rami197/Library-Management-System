@@ -61,15 +61,23 @@ public class Book_Admin_Ui extends javax.swing.JFrame {
     }
 public void searchTable(String searchQuery) {
 
-    String sql = "SELECT bc.Accession_No, b.Publisher_Name, b.ISBN_No, b.Title, a.Author_ID, a.Author_Name, t.transaction_type " +
-                 "FROM book b " +
-                 "INNER JOIN author a ON a.Author_ID = b.Author_ID " +
-                 "INNER JOIN bookcopies bc ON b.ISBN_No = bc.ISBN_No " +
-                 "LEFT JOIN transactions t ON t.Accession_No = bc.Accession_No " + // Adjust if needed
-                 "WHERE b.Title LIKE ? " +
-                 "OR b.Publisher_Name LIKE ? " +
-                 "OR a.Author_Name LIKE ?";
-                 
+    String sql = "SELECT bc.Accession_No, b.Publisher_Name, b.ISBN_No, b.Title, a.Author_ID, a.Author_Name, "
+               + "(CASE "
+               + "   WHEN t.transaction_type = 'Loan'  THEN 'On a Loan ' "
+               + "   WHEN t.transaction_type = 'damaged_return' THEN 'Damaged Book' "
+               + "   ELSE 'Available to lend ' "
+               + "END) AS Availability "
+               + "FROM book b "
+               + "INNER JOIN author a ON a.Author_ID = b.Author_ID "
+               + "INNER JOIN bookcopies bc ON b.ISBN_No = bc.ISBN_No "
+               + "LEFT JOIN transactions t ON t.Accession_No = bc.Accession_No "
+               + "AND t.transaction_date = (SELECT MAX(t2.transaction_date) "
+               + "                           FROM transactions t2 "
+               + "                           WHERE t2.Accession_No = bc.Accession_No) "
+               + "WHERE b.Title LIKE ? "
+               + "OR b.Publisher_Name LIKE ? "
+               + "OR a.Author_Name LIKE ?";
+
     try (Connection connection = new Helper.DatabaseConnection().connection();
          PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -78,30 +86,32 @@ public void searchTable(String searchQuery) {
         stmt.setString(3, "%" + searchQuery + "%");
 
         try (ResultSet rs = stmt.executeQuery()) {
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            String[] columnNames = new String[columnCount];
-            for (int i = 1; i <= columnCount; i++) {
-                columnNames[i - 1] = metaData.getColumnName(i);
-            }
-
+            // Define only the columns you want to display
+            String[] columnNames = {"Publisher Name", "ISBN Number", "Title", "Author", "Availability"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            
+            // Loop through the result set
             while (rs.next()) {
-                Object[] row = new Object[columnCount];
-                for (int i = 1; i <= columnCount; i++) {
-                    row[i - 1] = rs.getObject(i);
-                }
+                // Extract data, including the calculated "Availability"
+                Object[] row = new Object[5];  // Only 5 columns: Publisher, ISBN, Title, Author Name, and Availability
+                row[0] = rs.getString("Publisher_Name");
+                row[1] = rs.getString("ISBN_No");
+                row[2] = rs.getString("Title");
+                row[3] = rs.getString("Author_Name");
+                row[4] = rs.getString("Availability");  // Availability is based on the CASE condition
+
                 tableModel.addRow(row);
             }
 
+            // Set the model for the table
             rSTableMetro1.setModel(tableModel);
         }
 
     } catch (SQLException e) {
         e.printStackTrace();
-        // Consider logging the error or providing user feedback
-    }}
+    }
+}
+
     //select * from book b in
     
     @SuppressWarnings("unchecked")

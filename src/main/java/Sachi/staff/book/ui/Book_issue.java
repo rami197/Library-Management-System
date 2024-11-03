@@ -136,7 +136,7 @@ public class Book_issue extends javax.swing.JFrame {
                 conn.commit();
 
                 JOptionPane.showMessageDialog(this, "Book Issued successfully");
-                b_id.setText("");
+               // b_id.setText("");
                 accession_no.setText("");
                 transaction_startDate.setText("");
                 due_date.setText("");
@@ -155,7 +155,52 @@ public class Book_issue extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Database Connection Error");
         }
     }
+public int getRemainingBookLimit(int memberId) {
+        int noOfBooksIssued = 0;
+        int maxBooksAllowed = 0;
 
+        try(Connection conn = new Helper.DatabaseConnection().connection()) {
+            // Retrieve the number of books issued
+            String queryIssued = "SELECT no_ofbooks_issued FROM borrower WHERE B_ID = ?";
+            PreparedStatement pstIssued = conn.prepareStatement(queryIssued);
+            pstIssued.setInt(1, memberId);
+            ResultSet rsIssued = pstIssued.executeQuery();
+
+            if (rsIssued.next()) {
+                noOfBooksIssued = rsIssued.getInt("no_ofbooks_issued");
+            }
+
+            // Retrieve the maximum number of books allowed to issue
+            String queryMax = "SELECT no_of_Books_Issue FROM borrower WHERE B_ID = ?";
+            PreparedStatement pstMax = conn.prepareStatement(queryMax);
+            pstMax.setInt(1, memberId);
+            ResultSet rsMax = pstMax.executeQuery();
+
+            if (rsMax.next()) {
+                maxBooksAllowed = rsMax.getInt("no_of_Books_Issue");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Calculate remaining book limit
+        int remainingBookLimit = maxBooksAllowed - noOfBooksIssued;
+        return remainingBookLimit;
+    }
+ public void updateRemainingBookLimit(int memberId) {
+        int remainingBooks = getRemainingBookLimit(memberId);
+        member_status.setText(String.valueOf(remainingBooks+" Books can Issue"));
+        if(remainingBooks<=0){
+        JOptionPane.showMessageDialog(this, "This member has reached the book limit and cannot borrow more books.", "Book Limit Reached", JOptionPane.WARNING_MESSAGE);
+        // Disable issue book button or other relevant UI elements
+        button2.setEnabled(false);
+        button1.setEnabled(false);}
+        else{
+            button2.setEnabled(true);
+        button1.setEnabled(true);
+        }
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -181,8 +226,6 @@ public class Book_issue extends javax.swing.JFrame {
         bookname = new javax.swing.JLabel();
         jLabel91 = new javax.swing.JLabel();
         jLabel82 = new javax.swing.JLabel();
-        rSButtonPane1 = new rojeru_san.complementos.RSButtonPane();
-        jLabel86 = new javax.swing.JLabel();
         transaction_startDate = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel80 = new javax.swing.JLabel();
@@ -190,6 +233,9 @@ public class Book_issue extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jLabel83 = new javax.swing.JLabel();
+        button1 = new java.awt.Button();
+        jLabel86 = new javax.swing.JLabel();
+        button2 = new java.awt.Button();
         jPanel1 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jLabel15 = new javax.swing.JLabel();
@@ -286,45 +332,12 @@ public class Book_issue extends javax.swing.JFrame {
         jLabel82.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
         jLabel82.setForeground(new java.awt.Color(102, 255, 102));
         jLabel82.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Add.png"))); // NOI18N
-        jLabel82.setText("Add Another");
         jLabel82.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(204, 255, 204)));
         jLabel82.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel82MouseClicked(evt);
             }
         });
-
-        rSButtonPane1.setBackground(new java.awt.Color(51, 102, 0));
-        rSButtonPane1.setColorHover(new java.awt.Color(0, 102, 0));
-        rSButtonPane1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                rSButtonPane1MouseClicked(evt);
-            }
-        });
-
-        jLabel86.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
-        jLabel86.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel86.setIcon(new javax.swing.ImageIcon(getClass().getResource("/adminIcons/icons8_Book_26px.png"))); // NOI18N
-        jLabel86.setText("Issue");
-        jLabel86.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel86MouseClicked(evt);
-            }
-        });
-
-        javax.swing.GroupLayout rSButtonPane1Layout = new javax.swing.GroupLayout(rSButtonPane1);
-        rSButtonPane1.setLayout(rSButtonPane1Layout);
-        rSButtonPane1Layout.setHorizontalGroup(
-            rSButtonPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, rSButtonPane1Layout.createSequentialGroup()
-                .addContainerGap(64, Short.MAX_VALUE)
-                .addComponent(jLabel86, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(51, 51, 51))
-        );
-        rSButtonPane1Layout.setVerticalGroup(
-            rSButtonPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel86, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
-        );
 
         transaction_startDate.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         transaction_startDate.setForeground(new java.awt.Color(255, 255, 255));
@@ -381,6 +394,36 @@ public class Book_issue extends javax.swing.JFrame {
             }
         });
 
+        button1.setBackground(new java.awt.Color(51, 102, 0));
+        button1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        button1.setForeground(new java.awt.Color(255, 255, 255));
+        button1.setLabel("Add Another");
+        button1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button1ActionPerformed(evt);
+            }
+        });
+
+        jLabel86.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jLabel86.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel86.setIcon(new javax.swing.ImageIcon(getClass().getResource("/adminIcons/icons8_Book_26px.png"))); // NOI18N
+        jLabel86.setText("Issue");
+        jLabel86.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel86MouseClicked(evt);
+            }
+        });
+
+        button2.setBackground(new java.awt.Color(51, 102, 0));
+        button2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        button2.setForeground(new java.awt.Color(255, 255, 255));
+        button2.setLabel("Issue");
+        button2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
         jPanel15.setLayout(jPanel15Layout);
         jPanel15Layout.setHorizontalGroup(
@@ -389,12 +432,11 @@ public class Book_issue extends javax.swing.JFrame {
                 .addGap(23, 23, 23)
                 .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel15Layout.createSequentialGroup()
-                        .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel76, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
-                                .addComponent(jLabel78, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel79, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel80, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel76, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                            .addComponent(jLabel78, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel79, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel80, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel77, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(jLabel74, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -434,9 +476,13 @@ public class Book_issue extends javax.swing.JFrame {
                                         .addComponent(bookname, javax.swing.GroupLayout.PREFERRED_SIZE, 571, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(jPanel15Layout.createSequentialGroup()
                                         .addGap(8, 8, 8)
-                                        .addComponent(rSButtonPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(114, 114, 114)
-                                        .addComponent(jLabel82, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(jLabel86, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(149, 149, 149)
+                                        .addComponent(jLabel82)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(due_date, javax.swing.GroupLayout.PREFERRED_SIZE, 571, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap(402, Short.MAX_VALUE))))
                     .addGroup(jPanel15Layout.createSequentialGroup()
@@ -495,10 +541,13 @@ public class Book_issue extends javax.swing.JFrame {
                     .addGroup(jPanel15Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(due_date, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rSButtonPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel82))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel86, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(button1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel82, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
 
@@ -657,26 +706,64 @@ public class Book_issue extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void rSButtonPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rSButtonPane1MouseClicked
-
-    }//GEN-LAST:event_rSButtonPane1MouseClicked
-
     private void jLabel86MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel86MouseClicked
-        saveIssue();
+        
     }//GEN-LAST:event_jLabel86MouseClicked
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String memberId = b_id.getText();
-        if (memberId != null && !memberId.isEmpty()) {
-            boolean hasExceededBookLimit = checkMemberBookLimit(memberId);
-            if (hasExceededBookLimit) {
-                member_status.setText("Member has exceeded book limit");
-            } else {
-                member_status.setText("Member is within book limit,enable to Issue");
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please enter a valid Membership ID");
-        }
+if (memberId != null && !memberId.isEmpty()) {
+    boolean hasExceededBookLimit = checkMemberBookLimit(memberId);
+    if (hasExceededBookLimit) {
+        member_status.setText("This member cannot take another book.");
+        JOptionPane.showMessageDialog(this, "This member has reached the book limit and cannot borrow more books.", "Book Limit Reached", JOptionPane.WARNING_MESSAGE);
+        // Disable issue book button or other relevant UI elements
+        button2.setEnabled(false);
+        button1.setEnabled(false);
+        //JOptionPane.showMessageDialog(this, "This member has reached the book limit and cannot borrow more books.", "Book Limit Reached", JOptionPane.WARNING_MESSAGE);
+    } else {
+        member_status.setText("Member is within book limit, able to issue.");
+        // Enable issue book button or other relevant UI elements
+        button2.setEnabled(true);
+        button1.setEnabled(true);
+    }
+} else {
+    JOptionPane.showMessageDialog(this, "Please enter a valid Membership ID", "Invalid ID", JOptionPane.ERROR_MESSAGE);
+}
+
+    //String memberId = txtMemberID.getText(); // Assuming you have a text field for member ID input
+
+    // Check if the member has exceeded the book limit
+    
+    
+    // Proceed with saving the book issue
+//    String bookId = txtBookID.getText(); // Assuming you have a text field for book ID input
+//    String issueDate = txtIssueDate.getText(); // Assuming you have a text field for issue date input
+//    String dueDate = txtDueDate.getText(); // Assuming you have a text field for due date input
+
+    // Your existing code to save the book issue
+//    String query = "INSERT INTO issue (B_id, book_id, issue_date, due_date) VALUES (?, ?, ?, ?)";
+    
+//    try (Connection connection = new Helper.DatabaseConnection().connection();
+//         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+//
+//        preparedStatement.setString(1, memberId);
+//        preparedStatement.setString(2, bookId);
+//        preparedStatement.setString(3, issueDate);
+//        preparedStatement.setString(4, dueDate);
+//
+//        int rowsAffected = preparedStatement.executeUpdate();
+//        if (rowsAffected > 0) {
+//            JOptionPane.showMessageDialog(this, "Book issued successfully.");
+//        } else {
+//            JOptionPane.showMessageDialog(this, "Failed to issue book.");
+//        }
+//
+//    } catch (SQLException e) {
+//        e.printStackTrace();
+//        JOptionPane.showMessageDialog(this, "Error in issuing book.");
+//    }
+
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -695,14 +782,54 @@ String bookId = accession_no.getText();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jLabel82MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel82MouseClicked
-  clearFields();
-   accession_no.setText("");
+  
   // TODO add your handling code here:
     }//GEN-LAST:event_jLabel82MouseClicked
 
     private void jLabel83MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel83MouseClicked
        clearFields();
     }//GEN-LAST:event_jLabel83MouseClicked
+
+    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
+clearFields();
+   accession_no.setText("");        // TODO add your handling code here:
+    }//GEN-LAST:event_button1ActionPerformed
+
+    private void button2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button2ActionPerformed
+saveIssue();  
+       String memberIdText = b_id.getText().trim();
+                if (!memberIdText.isEmpty()) {
+                    try {
+                        int memberId = Integer.parseInt(memberIdText);
+                        updateRemainingBookLimit(memberId);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Please enter a valid member ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Member ID cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+//       String memberId = b_id.getText();
+//if (memberId != null && !memberId.isEmpty()) {
+//    boolean hasExceededBookLimit = checkMemberBookLimit(memberId);
+//    if (hasExceededBookLimit) {
+//        member_status.setText("This member cannot take another book.");
+//        JOptionPane.showMessageDialog(this, "This member has reached the book limit and cannot borrow more books.", "Book Limit Reached", JOptionPane.WARNING_MESSAGE);
+//        // Disable issue book button or other relevant UI elements
+//        button2.setEnabled(false);
+//        button1.setEnabled(false);
+//        //JOptionPane.showMessageDialog(this, "This member has reached the book limit and cannot borrow more books.", "Book Limit Reached", JOptionPane.WARNING_MESSAGE);
+//    } else {
+//        member_status.setText("Member is within book limit, able to issue.");
+//        // Enable issue book button or other relevant UI elements
+//        button2.setEnabled(true);
+//        button1.setEnabled(true);
+//    }
+//} else {
+//    JOptionPane.showMessageDialog(this, "Please enter a valid Membership ID", "Invalid ID", JOptionPane.ERROR_MESSAGE);
+//}
+//     
+
+    }//GEN-LAST:event_button2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -743,6 +870,8 @@ String bookId = accession_no.getText();
     private javax.swing.JTextField accession_no;
     private javax.swing.JTextField b_id;
     private javax.swing.JLabel bookname;
+    private java.awt.Button button1;
+    private java.awt.Button button2;
     private javax.swing.JLabel classificationNo;
     private javax.swing.JLabel dateshow;
     private javax.swing.JLabel due_date;
@@ -775,7 +904,6 @@ String bookId = accession_no.getText();
     private javax.swing.JPanel jPanel8;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JLabel member_status;
-    private rojeru_san.complementos.RSButtonPane rSButtonPane1;
     private javax.swing.JLabel transaction_startDate;
     // End of variables declaration//GEN-END:variables
 }

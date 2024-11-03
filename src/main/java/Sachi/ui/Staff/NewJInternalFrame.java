@@ -63,6 +63,7 @@ public class NewJInternalFrame extends javax.swing.JInternalFrame {
         jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neww icons/icons8-id-verified-24.png"))); // NOI18N
         jLabel19.setText("NIC No");
 
+        nicNo.setBackground(new java.awt.Color(0, 0, 0));
         nicNo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         nicNo.setForeground(new java.awt.Color(255, 153, 0));
 
@@ -71,6 +72,7 @@ public class NewJInternalFrame extends javax.swing.JInternalFrame {
         jLabel20.setForeground(new java.awt.Color(0, 0, 0));
         jLabel20.setText("Occupation");
 
+        occupation1.setBackground(new java.awt.Color(0, 0, 0));
         occupation1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         occupation1.setForeground(new java.awt.Color(255, 153, 0));
 
@@ -79,6 +81,7 @@ public class NewJInternalFrame extends javax.swing.JInternalFrame {
         jLabel49.setForeground(new java.awt.Color(0, 0, 0));
         jLabel49.setText("Mobile");
 
+        mobilecontactbox.setBackground(new java.awt.Color(0, 0, 0));
         mobilecontactbox.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         mobilecontactbox.setForeground(new java.awt.Color(255, 153, 0));
         mobilecontactbox.addActionListener(new java.awt.event.ActionListener() {
@@ -92,6 +95,7 @@ public class NewJInternalFrame extends javax.swing.JInternalFrame {
         jLabel50.setForeground(new java.awt.Color(0, 0, 0));
         jLabel50.setText("Official");
 
+        officecontactbox1.setBackground(new java.awt.Color(0, 0, 0));
         officecontactbox1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         officecontactbox1.setForeground(new java.awt.Color(255, 153, 0));
 

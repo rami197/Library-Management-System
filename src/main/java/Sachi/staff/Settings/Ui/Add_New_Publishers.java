@@ -2,6 +2,7 @@ package Sachi.staff.Settings.Ui;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
@@ -16,27 +17,42 @@ public class Add_New_Publishers extends javax.swing.JFrame {
     }
 
     private void AddNewPublisher() {
-        String publisherName = newPublishertextbox.getText().trim();
+    String publisherName = newPublishertextbox.getText().trim();
 
-        if (publisherName.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Publisher name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String sqlp = "INSERT INTO publisher (Publisher_Name) VALUES (?)";
-
-        try ( Connection conn = new Helper.DatabaseConnection().connection();  PreparedStatement ppub = conn.prepareStatement(sqlp)) {
-
-            ppub.setString(1, publisherName);
-
-            ppub.executeUpdate();
-
-            JOptionPane.showMessageDialog(null, "Publisher name inserted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error inserting Publisher name: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    if (publisherName.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Publisher name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
     }
+
+    String checkPublisherSql = "SELECT COUNT(*) FROM publisher WHERE Publisher_Name = ?";
+    String insertPublisherSql = "INSERT INTO publisher (Publisher_Name) VALUES (?)";
+
+    try (Connection conn = new Helper.DatabaseConnection().connection()) {
+        // Check if the publisher already exists
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkPublisherSql)) {
+            checkStmt.setString(1, publisherName);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                if (count > 0) {
+                    JOptionPane.showMessageDialog(null, "Publisher name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        }
+
+        // If publisher doesn't exist, proceed to insert
+        try (PreparedStatement insertStmt = conn.prepareStatement(insertPublisherSql)) {
+            insertStmt.setString(1, publisherName);
+            insertStmt.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Publisher name inserted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error inserting Publisher name: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

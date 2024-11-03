@@ -155,12 +155,12 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel40 = new javax.swing.JLabel();
-        jLabel41 = new javax.swing.JLabel();
         jLabel42 = new javax.swing.JLabel();
         jLabel43 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel45 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jLabel18 = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
@@ -181,7 +181,7 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(51, 102, 0));
 
         jLabel40.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel40.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel40.setForeground(null);
         jLabel40.setIcon(new javax.swing.ImageIcon(getClass().getResource("/adminIcons/home_24px.png"))); // NOI18N
         jLabel40.setText("Home >>");
         jLabel40.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -190,14 +190,12 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
             }
         });
 
-        jLabel41.setFont(new java.awt.Font("Jokerman", 2, 20)); // NOI18N
-        jLabel41.setForeground(new java.awt.Color(0, 51, 0));
-        jLabel41.setText("League Developers");
-
         jLabel42.setFont(new java.awt.Font("Dialog", 0, 20)); // NOI18N
+        jLabel42.setForeground(null);
         jLabel42.setText("Library Management system >>");
 
         jLabel43.setFont(new java.awt.Font("Dialog", 0, 20)); // NOI18N
+        jLabel43.setForeground(null);
         jLabel43.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/username_3.png"))); // NOI18N
         jLabel43.setText("Welcome to User Account");
 
@@ -215,7 +213,7 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
         );
 
         jLabel45.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel45.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel45.setForeground(null);
         jLabel45.setIcon(new javax.swing.ImageIcon(getClass().getResource("/adminIcons/icons8_Books_26px.png"))); // NOI18N
         jLabel45.setText("Collect Replaced Books to inventory");
         jLabel45.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -237,14 +235,22 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
             .addGap(0, 8, Short.MAX_VALUE)
         );
 
+        jLabel2.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel2.setForeground(null);
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Close.png"))); // NOI18N
+        jLabel2.setText("Close");
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(59, 59, 59)
-                .addComponent(jLabel41, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(275, 275, 275)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -257,7 +263,9 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
                                 .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel45)))
-                        .addContainerGap(215, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 126, Short.MAX_VALUE)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel43, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -267,9 +275,7 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(52, 52, 52)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel41, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(0, 23, Short.MAX_VALUE)
@@ -280,8 +286,10 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
                     .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel45, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1240, -1));
@@ -291,20 +299,20 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
         jPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel18.setFont(new java.awt.Font("Dialog", 0, 20)); // NOI18N
-        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel18.setForeground(null);
         jLabel18.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/Add.png"))); // NOI18N
         jLabel18.setText("Add  Replaced Book Copies");
         jLabel18.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 102, 0), 2, true));
         jPanel7.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(42, 12, 1120, 35));
 
         jLabel26.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel26.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel26.setForeground(null);
         jLabel26.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/overdue books_1_1.png"))); // NOI18N
         jLabel26.setText("Type the Accession No :");
         jPanel7.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 80, -1, -1));
 
         jLabel30.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel30.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel30.setForeground(null);
         jLabel30.setText("Book Name");
         jPanel7.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 240, 128, -1));
 
@@ -352,21 +360,22 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
 
         jPanel7.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, -1, -1));
 
-        title.setForeground(new java.awt.Color(255, 255, 255));
+        title.setForeground(new java.awt.Color(255, 153, 0));
         title.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
         jPanel7.add(title, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 240, 187, 42));
 
         searchtext.setBackground(new java.awt.Color(0, 0, 0));
         searchtext.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        searchtext.setForeground(new java.awt.Color(255, 255, 255));
+        searchtext.setForeground(new java.awt.Color(255, 153, 0));
         jPanel7.add(searchtext, new org.netbeans.lib.awtextra.AbsoluteConstraints(296, 74, 189, 36));
 
-        classificationNotext.setForeground(new java.awt.Color(255, 255, 255));
+        classificationNotext.setForeground(new java.awt.Color(255, 153, 0));
         classificationNotext.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 255, 255)));
         jPanel7.add(classificationNotext, new org.netbeans.lib.awtextra.AbsoluteConstraints(298, 152, 187, 42));
 
         jButton1.setBackground(new java.awt.Color(51, 102, 0));
         jButton1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton1.setForeground(null);
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/User_Icons/search_5_1.png"))); // NOI18N
         jButton1.setText("Search");
         jButton1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -387,7 +396,7 @@ public class Collect_replaceBook_copy extends javax.swing.JFrame {
         jPanel7.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 70, 149, -1));
 
         jLabel37.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        jLabel37.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel37.setForeground(null);
         jLabel37.setText("ISBN No");
         jPanel7.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 150, 170, -1));
 
@@ -439,6 +448,10 @@ retrieveBookData();
         // TODO add your handling code here:
     }//GEN-LAST:event_rSButtonHover4ActionPerformed
 
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        dispose();        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel2MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -479,11 +492,11 @@ retrieveBookData();
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel40;
-    private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel43;
     private javax.swing.JLabel jLabel45;

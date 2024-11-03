@@ -19,30 +19,32 @@ public class childframe extends javax.swing.JInternalFrame {
     public childframe() {
         initComponents();
     }
-
-    public void insertChildMemberData() {
-    try (Connection conn = new Helper.DatabaseConnection().connection()) {
-        // Collect data from AdultMemberFrame
-        String occupationSchool= moccupationbox1.getText();
-        
-        
-        
-        
-        // SQL Insert statement
-        String sql = "INSERT INTO borrower( B_occupation) VALUES (?)";
-        
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, occupationSchool);
-            
-            
-            pst.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Child member registration is successful");
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Failed to insert Child member data");
+public javax.swing.JTextField  getSchoolbox1() {
+        return moccupationbox1;
     }
-}
+//    public void insertChildMemberData() {
+//    try (Connection conn = new Helper.DatabaseConnection().connection()) {
+//        // Collect data from AdultMemberFrame
+//        String occupationSchool= moccupationbox1.getText();
+//        
+//        
+//        
+//        
+//        // SQL Insert statement
+//        String sql = "INSERT INTO borrower( B_occupation) VALUES (?)";
+//        
+//        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+//            pst.setString(1, occupationSchool);
+//            
+//            
+//            pst.executeUpdate();
+//            JOptionPane.showMessageDialog(this, "Child member registration is successful");
+//        }
+//    } catch (SQLException e) {
+//        e.printStackTrace();
+//        JOptionPane.showMessageDialog(this, "Failed to insert Child member data");
+//    }
+//}
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -58,8 +60,9 @@ public class childframe extends javax.swing.JInternalFrame {
         jLabel26.setForeground(new java.awt.Color(0, 0, 0));
         jLabel26.setText("School Name");
 
+        moccupationbox1.setBackground(new java.awt.Color(0, 0, 0));
         moccupationbox1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        moccupationbox1.setForeground(new java.awt.Color(0, 0, 0));
+        moccupationbox1.setForeground(new java.awt.Color(204, 102, 0));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

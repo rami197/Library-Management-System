@@ -264,6 +264,8 @@ public class Membership_renewal extends javax.swing.JFrame {
         rSButtonHover10 = new rojeru_san.complementos.RSButtonHover();
         jButton5 = new javax.swing.JButton();
         jButton12 = new javax.swing.JButton();
+        jButton14 = new javax.swing.JButton();
+        jButton13 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jLayeredPane4 = new javax.swing.JLayeredPane();
         jPanel24 = new javax.swing.JPanel();
@@ -1254,6 +1256,24 @@ public class Membership_renewal extends javax.swing.JFrame {
             }
         });
 
+        jButton14.setBackground(new java.awt.Color(51, 102, 0));
+        jButton14.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton14.setText("Payment");
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton14ActionPerformed(evt);
+            }
+        });
+
+        jButton13.setBackground(new java.awt.Color(153, 0, 0));
+        jButton13.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jButton13.setText("Bill");
+        jButton13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton13ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -1266,9 +1286,13 @@ public class Membership_renewal extends javax.swing.JFrame {
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel113, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(searchIdTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 17, Short.MAX_VALUE))
-                    .addComponent(jButton12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(searchIdTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jButton12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton13, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -1283,7 +1307,10 @@ public class Membership_renewal extends javax.swing.JFrame {
                 .addGap(31, 31, 31)
                 .addComponent(jButton5)
                 .addGap(29, 29, 29)
-                .addComponent(jButton12)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton12)
+                    .addComponent(jButton14)
+                    .addComponent(jButton13))
                 .addGap(19, 19, 19))
         );
 
@@ -1360,6 +1387,7 @@ public class Membership_renewal extends javax.swing.JFrame {
         });
         jPanel24.add(Mnamebox, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 342, 33));
 
+        addressbox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         addressbox.setText("\n");
         jPanel24.add(addressbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(171, 123, 342, 63));
 
@@ -1759,7 +1787,7 @@ public class Membership_renewal extends javax.swing.JFrame {
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addGap(85, 85, 85)
                         .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(308, 308, 308)
+                        .addGap(362, 362, 362)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(316, Short.MAX_VALUE))
         );
@@ -1953,6 +1981,16 @@ public class Membership_renewal extends javax.swing.JFrame {
         renewMembership();      // TODO add your handling code here:
     }//GEN-LAST:event_jButton12ActionPerformed
 
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton13ActionPerformed
+
+    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+ Sachi.staff.Payments.Ui.memberfees mf=new Sachi.staff.Payments.Ui.memberfees();
+       mf.show();
+               // TODO add your handling code here:
+    }//GEN-LAST:event_jButton14ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -2002,6 +2040,8 @@ public class Membership_renewal extends javax.swing.JFrame {
     private javax.swing.JTextField homecontactbox;
     private javax.swing.JSpinner issueBookAmount;
     private javax.swing.JButton jButton12;
+    private javax.swing.JButton jButton13;
+    private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;

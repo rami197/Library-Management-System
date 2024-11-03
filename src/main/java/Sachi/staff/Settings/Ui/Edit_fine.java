@@ -1,7 +1,9 @@
 package Sachi.staff.Settings.Ui;
 
+import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
@@ -42,6 +44,36 @@ public class Edit_fine extends javax.swing.JFrame {
         }
 
     }
+    
+    private void loadFineAmounts() {
+    try (Connection conn = new Helper.DatabaseConnection().connection()) {
+        String selectedFineType = (String) fineTypecombobox.getSelectedItem();
+        int selectedFineTypeId = Character.digit(selectedFineType.charAt(0), 10);
+
+        String sql = "SELECT fine_type_amount_for_Childrens, fine_type_amount_for_Adults "
+                   + "FROM fines_type WHERE fine_type_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, selectedFineTypeId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            double childFineAmount = rs.getDouble("fine_type_amount_for_Childrens");
+            double adultFineAmount = rs.getDouble("fine_type_amount_for_Adults");
+
+            txtChildFineAmount.setText(String.valueOf(childFineAmount));
+            txtAdultFineAmount.setText(String.valueOf(adultFineAmount));
+        } else {
+            // Clear the fields if no data is found
+            txtChildFineAmount.setText("");
+            txtAdultFineAmount.setText("");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error fetching fine amounts!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -164,6 +196,11 @@ public class Edit_fine extends javax.swing.JFrame {
         fineTypecombobox.setForeground(new java.awt.Color(255, 255, 255));
         fineTypecombobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1 - 1 to 15 days", "2 - 16 to 30 days", "3 - 31 to 90 days", "4 - 91 to 180 days", "5 - Over 180 days", "6- Damaged/Missed book", "7-MemberRegistration fee", "8-member renewal Fee", "9-security deposit Fee" }));
         fineTypecombobox.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(51, 102, 0)));
+        fineTypecombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fineTypecomboboxActionPerformed(evt);
+            }
+        });
 
         txtChildFineAmount.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
 
@@ -490,6 +527,10 @@ public class Edit_fine extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 dispose();        // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void fineTypecomboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fineTypecomboboxActionPerformed
+loadFineAmounts();        // TODO add your handling code here:
+    }//GEN-LAST:event_fineTypecomboboxActionPerformed
 
     /**
      * @param args the command line arguments
